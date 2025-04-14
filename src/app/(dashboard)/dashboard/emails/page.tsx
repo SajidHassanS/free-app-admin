@@ -1,158 +1,6 @@
-// "use client";
-
-// import React, { useMemo, useState } from "react";
-// import { useDeleteSupplier } from "@/hooks/apis/useSupplier";
-// import { useContextConsumer } from "@/context/Context";
-// import { Button } from "@/components/ui/button";
-// import { Pencil, Plus, Trash2 } from "lucide-react";
-// import DataTable from "@/components/Table/DataTable";
-// import { Badge } from "@/components/ui/badge";
-// import { Toaster } from "react-hot-toast";
-// import { SweetAlert } from "@/components/alerts/SweetAlert";
-// import PasswordModal from "@/components/Forms/forms-modal/passwords/AddPassword";
-// import { useGetAllPasswords } from "@/hooks/apis/usePasswords";
-// import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
-// import { format } from "date-fns";
-// import { useGetAllEmails } from "@/hooks/apis/useEmails";
-
-// const Emails = () => {
-//   const { token } = useContextConsumer();
-//   const [isAddPasswordModalOpen, setIsAddPasswordModalOpen] =
-//     useState<boolean>(false);
-//   const [isUpdatePasswordModalOpen, setIsUpdatePasswordModalOpen] =
-//     useState<boolean>(false);
-//   const [selectedPasswordToView, setSelectedPasswordToView] = useState({});
-
-//   const { data, isLoading } = useGetAllEmails(token);
-//   // const { mutate: deletePassword, isPending: deletingPassword } =
-//   //   useDeletePassword(token);
-
-//   const emails = data?.data || [];
-
-//   console.log(emails, "emails");
-
-//   const handleView = (password: any) => {
-//     setIsUpdatePasswordModalOpen(true);
-//     setSelectedPasswordToView(password);
-//   };
-
-//   // const handleDelete = async (supplierId: any) => {
-//   //   const isConfirmed = await SweetAlert(
-//   //     "Delete Supplier?",
-//   //     "",
-//   //     "warning",
-//   //     "Yes, delete it!",
-//   //     "#15803D"
-//   //   );
-//   //   if (isConfirmed) {
-//   //     deletePassword(supplierId);
-//   //   }
-//   // };
-
-//   const EmailColoumn = useMemo(
-//     () => [
-//       {
-//         Header: "Password",
-//         accessor: "password",
-//       },
-//       {
-//         Header: "Created At",
-//         accessor: "createdAt",
-//         Cell: ({ row }: any) =>
-//           format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
-//       },
-//       {
-//         Header: "Updated At",
-//         accessor: "updatedAt",
-//         Cell: ({ row }: any) =>
-//           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
-//       },
-//       {
-//         Header: "Status",
-//         accessor: "active",
-//         Cell: ({ row }: any) => (
-//           <Badge variant={row.original.active ? "success" : "destructive"}>
-//             {row.original.active ? "Active" : "Inactive"}
-//           </Badge>
-//         ),
-//       },
-//       {
-//         Header: "",
-//         accessor: "actions",
-//         Cell: ({ row }: any) => (
-//           <div className="flex items-center justify-end gap-2.5">
-//             <Button
-//               size="icon"
-//               variant="outline"
-//               className="h-7 w-7"
-//               onClick={() => handleView(row.original)}
-//             >
-//               <Pencil className="h-3.5 w-3.5 text-gray-600" />
-//             </Button>
-//             <Button
-//               size="icon"
-//               variant="destructive"
-//               className="h-7 w-7"
-//               // onClick={() => handleDelete(row.original.uuid)}
-//             >
-//               <Trash2 className="h-3.5 w-3.5" />
-//             </Button>
-//           </div>
-//         ),
-//       },
-//     ],
-//     []
-//   );
-
-//   return (
-//     <>
-//       <Toaster />
-//       <div className="space-y-4 p-10 rounded-2xl">
-//         <div className="flex items-center justify-between">
-//           <h2 className="text-xl font-bold">Available Emails</h2>
-//           <Button
-//             className="text-xs"
-//             size="sm"
-//             onClick={() => setIsAddPasswordModalOpen(true)}
-//           >
-//             Create Password
-//             <Plus className="h-4 w-4 ml-1 font-bold" />
-//           </Button>
-//         </div>
-//         {isLoading ? (
-//           <SkeletonCard className="w-full h-80" />
-//         ) : emails.length <= 0 ? (
-//           <p>No Emails Data Available!</p>
-//         ) : (
-//           <div className="border rounded-2xl">
-//             <DataTable
-//               columns={EmailColoumn}
-//               data={emails}
-//               paginate={emails.length > 10}
-//             />
-//           </div>
-//         )}
-//       </div>
-//       <PasswordModal
-//         open={isAddPasswordModalOpen}
-//         onOpenChange={setIsAddPasswordModalOpen}
-//         mode="add"
-//       />
-//       <PasswordModal
-//         open={isUpdatePasswordModalOpen}
-//         onOpenChange={setIsUpdatePasswordModalOpen}
-//         password={selectedPasswordToView}
-//         mode="view"
-//       />
-//     </>
-//   );
-// };
-
-// export default Emails;
-
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
 import { Pencil, Plus, Trash2 } from "lucide-react";
@@ -161,24 +9,99 @@ import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { format } from "date-fns";
-import { useGetAllEmails } from "@/hooks/apis/useEmails";
+import {
+  useBulkEmailUpdate,
+  useGetAllEmails,
+  useGetDuplicateEmails,
+} from "@/hooks/apis/useEmails";
+import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmail";
+// import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmailUpdateModal";
 
 const Emails = () => {
   const { token } = useContextConsumer();
-  const [isAddEmailModalOpen, setIsAddEmailModalOpen] = useState(false);
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
+  const [showDuplicateEmails, setShowDuplicateEmails] = useState(false);
   const [selectedEmailToView, setSelectedEmailToView] = useState({});
+  const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
+  const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
+  const duplicateSectionRef = useRef<HTMLDivElement>(null);
 
   const { data, isLoading } = useGetAllEmails(token);
+  const { data: duplicateEmailsData, isLoading: duplicateLoading } =
+    useGetDuplicateEmails(token);
+
   const emails = data?.data || [];
+  const duplicateEmails = duplicateEmailsData?.data || [];
 
   const handleView = (email: any) => {
     setIsUpdateEmailModalOpen(true);
     setSelectedEmailToView(email);
   };
 
+  const handleShowDuplicate = () => {
+    setShowDuplicateEmails(true);
+    setTimeout(() => {
+      duplicateSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 200);
+  };
+
+  const toggleEmailSelection = (uuid: string) => {
+    setSelectedUUIDs((prev) =>
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
+    );
+  };
+
+  const duplicateColumns = useMemo(
+    () => [
+      {
+        Header: "Email",
+        accessor: "originalEmail.email",
+      },
+      {
+        Header: "Status",
+        accessor: "originalEmail.status",
+        Cell: ({ row }: any) => (
+          <Badge
+            className={
+              row.original.originalEmail.status === "good"
+                ? "bg-green-100 text-green-700"
+                : "bg-yellow-100 text-yellow-700"
+            }
+          >
+            {row.original.originalEmail.status}
+          </Badge>
+        ),
+      },
+      {
+        Header: "Duplicate File",
+        accessor: "fileName",
+      },
+      {
+        Header: "Uploader",
+        accessor: "uploader.username",
+      },
+      {
+        Header: "Original File",
+        accessor: "originalEmail.fileName",
+      },
+    ],
+    []
+  );
+
   const emailColumns = useMemo(
     () => [
+      {
+        Header: "",
+        accessor: "select",
+        Cell: ({ row }: any) =>
+          row.original.status === "bad" && (
+            <input
+              type="checkbox"
+              checked={selectedUUIDs.includes(row.original.uuid)}
+              onChange={() => toggleEmailSelection(row.original.uuid)}
+            />
+          ),
+      },
       {
         Header: "Supplier",
         accessor: "user.username",
@@ -197,12 +120,10 @@ const Emails = () => {
         accessor: "status",
         Cell: ({ row }: any) => (
           <Badge
-            variant={
-              row.original.status === "pending" ? "secondary" : "success"
-            }
+            variant={row.original.status === "bad" ? "secondary" : "success"}
             className={
-              row.original.status === "pending"
-                ? "bg-yellow-100 text-yellow-700"
+              row.original.status === "bad"
+                ? "bg-red-100 text-yellow-700"
                 : "bg-green-100 text-green-700"
             }
           >
@@ -260,23 +181,29 @@ const Emails = () => {
         ),
       },
     ],
-    []
+    [selectedUUIDs]
   );
 
   return (
     <>
       <Toaster />
       <div className="space-y-4 p-10 rounded-2xl">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap gap-3 items-center justify-between">
           <h2 className="text-xl font-bold">Available Emails</h2>
-          <Button
-            className="text-xs"
-            size="sm"
-            onClick={() => setIsAddEmailModalOpen(true)}
-          >
-            Create Email
-            <Plus className="h-4 w-4 ml-1 font-bold" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="text-xs"
+              size="sm"
+              variant="outline"
+              disabled={selectedUUIDs.length === 0}
+              onClick={() => setIsBulkUpdateModalOpen(true)}
+            >
+              Bulk Update
+            </Button>
+            <Button className="text-xs" size="sm" onClick={handleShowDuplicate}>
+              Show Duplicate Email
+            </Button>
+          </div>
         </div>
         {isLoading ? (
           <SkeletonCard className="w-full h-80" />
@@ -291,18 +218,33 @@ const Emails = () => {
             />
           </div>
         )}
+
+        {showDuplicateEmails && (
+          <div ref={duplicateSectionRef} className="pt-10">
+            <h2 className="text-2xl font-bold text-primary mb-4">
+              Duplicate Emails
+            </h2>
+            {duplicateLoading ? (
+              <SkeletonCard className="w-full h-40" />
+            ) : duplicateEmails.length <= 0 ? (
+              <p>No Duplicate Emails Found.</p>
+            ) : (
+              <div className="border rounded-2xl">
+                <DataTable
+                  columns={duplicateColumns}
+                  data={duplicateEmails}
+                  paginate={duplicateEmails.length > 10}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
-      {/* <EmailModal
-        open={isAddEmailModalOpen}
-        onOpenChange={setIsAddEmailModalOpen}
-        mode="add"
+      <BulkEmailUpdateModal
+        open={isBulkUpdateModalOpen}
+        onClose={setIsBulkUpdateModalOpen}
+        uuids={selectedUUIDs}
       />
-      <EmailModal
-        open={isUpdateEmailModalOpen}
-        onOpenChange={setIsUpdateEmailModalOpen}
-        email={selectedEmailToView}
-        mode="view"
-      /> */}
     </>
   );
 };

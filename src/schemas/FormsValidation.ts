@@ -181,6 +181,21 @@ const addPasswordSchema = z.object({
     .min(1, "At least one password is required"),
 });
 
+const bulkEmailUpdate = z.object({
+  status: z.string().nonempty({
+    message: "Select Status",
+  }),
+  remarks: z.string().nonempty({
+    message: "Enter Remarks",
+  }),
+});
+
+const withdrawlUpdate = z.object({
+  action: z.string().nonempty({
+    message: "Select Action",
+  }),
+});
+
 export {
   createAccountFormSchema,
   loginAccountFormSchema,
@@ -193,4 +208,6 @@ export {
   addEmailRewardFormSchema,
   addWithdrawThresholdFormSchema,
   addBonusFormSchema,
+  bulkEmailUpdate,
+  withdrawlUpdate,
 };

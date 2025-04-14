@@ -46,8 +46,6 @@ const EmailRewardForm = ({
 
   const { reset } = form;
 
-  console.log(emailReward, "emailRewardemailReward");
-
   useEffect(() => {
     if (emailReward) {
       reset({

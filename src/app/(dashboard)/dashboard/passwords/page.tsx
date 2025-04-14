@@ -27,8 +27,6 @@ const Passwords = () => {
 
   const passwords = data?.data || [];
 
-  console.log(data, "passwordspaswwords");
-
   const handleView = (password: any) => {
     setIsUpdatePasswordModalOpen(true);
     setSelectedPasswordToView(password);

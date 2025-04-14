@@ -9,6 +9,16 @@ export const role = [
   { value: "superadmin", label: "Super Admin" },
 ];
 
+export const status = [
+  { value: "good", label: "Good" },
+  { value: "bad", label: "Bad" },
+];
+
+export const withdrawlOption = [
+  { value: "approve", label: "Approve" },
+  { value: "reject", label: "Reject" },
+];
+
 export const trade = [
   { value: "carpenter", label: "Carpenter" },
   { value: "elevator_mechanic", label: "Elevator Mechanic" },
@@ -2159,6 +2169,14 @@ export const navItems = [
     items: [],
   },
   {
+    title: "Chat",
+    url: "/dashboard/chat",
+    icon: "chat",
+    isActive: false,
+    shortcut: ["ch", "ch"],
+    items: [],
+  },
+  {
     title: "Emails",
     url: "/dashboard/emails",
     icon: "mailList",
@@ -2175,6 +2193,14 @@ export const navItems = [
     items: [],
   },
   {
+    title: "Withdrawls",
+    url: "/dashboard/withdrawls",
+    icon: "PanelTopOpen",
+    isActive: false,
+    shortcut: ["w", "w"],
+    items: [],
+  },
+  {
     title: "Profile",
     url: "/dashboard/settings",
     icon: "user",
@@ -2182,34 +2208,4 @@ export const navItems = [
     shortcut: ["u", "u"],
     items: [],
   },
-  // {
-  //   title: "Student",
-  //   url: "#",
-  //   icon: "users",
-  //   isActive: true,
-
-  //   items: [
-  //     {
-  //       title: "Student Evalution",
-  //       url: "/dashboard/students/student-evalution",
-  //       icon: "users",
-  //       shortcut: ["s", "s"],
-  //     },
-  //   ],
-  // },
-  // {
-  //   title: "Account",
-  //   url: "#",
-  //   icon: "billing",
-  //   isActive: true,
-
-  //   items: [
-  //     {
-  //       title: "Profile",
-  //       url: "/dashboard/settings",
-  //       icon: "userPen",
-  //       shortcut: ["m", "m"],
-  //     },
-  //   ],
-  // },
 ];

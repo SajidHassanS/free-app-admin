@@ -38,8 +38,6 @@ const AddPasswordForm = ({
   const { token } = useContextConsumer();
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
-  console.log(password, "selectedPassword");
-
   const { mutate: createPassword, isPending: loading } = useCreateNewPassword();
   const { mutate: updatePassword, isPending: updating } =
     useUpdatePassword(token);
@@ -85,7 +83,7 @@ const AddPasswordForm = ({
     } else if (mode === "edit") {
       const updatedData = {
         // password: password.password,
-        passwords: data.passwords[0],
+        passwords: [data.passwords[0]],
       };
       updatePassword(
         { data: updatedData },

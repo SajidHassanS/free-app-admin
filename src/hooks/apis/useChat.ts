@@ -1,9 +1,10 @@
+import { getMessages, getUnreadCount, getUsersList } from "@/api/chat";
 import {
-  emailBulkUpdate,
-  getDuplicateEmailsList,
-  getEmailsList,
-  getEmailsStats,
-} from "@/api/emails";
+  createSupplier,
+  deleteSupplier,
+  getSupplierList,
+  updateSupplier,
+} from "@/api/suppliers";
 import {
   useMutation,
   useQuery,
@@ -12,10 +13,10 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export const useGetAllEmails = (token: string) => {
+export const useGetUserList = (token: string) => {
   return useQuery<any, Error>({
-    queryKey: ["allEmails", token],
-    queryFn: () => getEmailsList(token),
+    queryKey: ["allUsers", token],
+    queryFn: () => getUsersList(token),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);
@@ -31,10 +32,10 @@ export const useGetAllEmails = (token: string) => {
   } as UseQueryOptions);
 };
 
-export const useGetDuplicateEmails = (token: string) => {
+export const useUserMessagesHistory = (uuid: string, token: string) => {
   return useQuery<any, Error>({
-    queryKey: ["duplicateEmails", token],
-    queryFn: () => getDuplicateEmailsList(token),
+    queryKey: ["messageHistory", uuid, token],
+    queryFn: () => getMessages(uuid, token),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);
@@ -45,15 +46,16 @@ export const useGetDuplicateEmails = (token: string) => {
     onError: (error: any) => {
       toast.error(error?.response?.data?.message);
     },
+    enabled: !!uuid,
     staleTime: 60000,
     refetchOnWindowFocus: false,
   } as UseQueryOptions);
 };
 
-export const useGetEmailStats = (token: string) => {
+export const useGetUnreadMessageCount = (uuid: string, token: string) => {
   return useQuery<any, Error>({
-    queryKey: ["getEmailsStats", token],
-    queryFn: () => getEmailsStats(token),
+    queryKey: ["unreadMessageCount", uuid, token],
+    queryFn: () => getUnreadCount(uuid, token),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);
@@ -64,26 +66,8 @@ export const useGetEmailStats = (token: string) => {
     onError: (error: any) => {
       toast.error(error?.response?.data?.message);
     },
+    enabled: !!uuid,
     staleTime: 60000,
     refetchOnWindowFocus: false,
   } as UseQueryOptions);
-};
-
-export const useBulkEmailUpdate = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ data, token }: { data: any; token: string }) =>
-      emailBulkUpdate(data, token),
-    onSuccess: (data: any, variables: { data: any; token: string }) => {
-      if (data?.success) {
-        toast.success(data.message);
-        queryClient.invalidateQueries(["allEmails", variables.token] as any);
-      } else {
-        toast.error(data?.message);
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message);
-    },
-  });
 };

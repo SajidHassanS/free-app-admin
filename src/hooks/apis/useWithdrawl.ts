@@ -5,6 +5,13 @@ import {
   getEmailsStats,
 } from "@/api/emails";
 import {
+  getAllWithdrawls,
+  getAllWithdrawlsBonus,
+  getWithdrawlsStats,
+  withdrawlBonusUpdate,
+  withdrawlUpdate,
+} from "@/api/withdrawl";
+import {
   useMutation,
   useQuery,
   useQueryClient,
@@ -12,10 +19,10 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export const useGetAllEmails = (token: string) => {
+export const useGetWithdrawlStats = (token: string) => {
   return useQuery<any, Error>({
-    queryKey: ["allEmails", token],
-    queryFn: () => getEmailsList(token),
+    queryKey: ["getWithdrawlsStats", token],
+    queryFn: () => getWithdrawlsStats(token),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);
@@ -31,10 +38,10 @@ export const useGetAllEmails = (token: string) => {
   } as UseQueryOptions);
 };
 
-export const useGetDuplicateEmails = (token: string) => {
+export const useGetWithdrawl = (token: string) => {
   return useQuery<any, Error>({
-    queryKey: ["duplicateEmails", token],
-    queryFn: () => getDuplicateEmailsList(token),
+    queryKey: ["withdrawals", token],
+    queryFn: () => getAllWithdrawls(token),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);
@@ -50,34 +57,56 @@ export const useGetDuplicateEmails = (token: string) => {
   } as UseQueryOptions);
 };
 
-export const useGetEmailStats = (token: string) => {
-  return useQuery<any, Error>({
-    queryKey: ["getEmailsStats", token],
-    queryFn: () => getEmailsStats(token),
-    onSuccess: (data: any) => {
-      if (data?.success) {
-        toast.success(data?.message);
-      } else {
-        toast.error(data?.message);
-      }
-    },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message);
-    },
-    staleTime: 60000,
-    refetchOnWindowFocus: false,
-  } as UseQueryOptions);
-};
-
-export const useBulkEmailUpdate = () => {
+export const useWithdrawlUpdate = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ data, token }: { data: any; token: string }) =>
-      emailBulkUpdate(data, token),
+      withdrawlUpdate(data, token),
     onSuccess: (data: any, variables: { data: any; token: string }) => {
       if (data?.success) {
         toast.success(data.message);
-        queryClient.invalidateQueries(["allEmails", variables.token] as any);
+        queryClient.invalidateQueries(["withdrawals", variables.token] as any);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
+};
+
+export const useGetWithdrawlBonus = (token: string) => {
+  return useQuery<any, Error>({
+    queryKey: ["withdrawalsBonus", token],
+    queryFn: () => getAllWithdrawlsBonus(token),
+    onSuccess: (data: any) => {
+      if (data?.success) {
+        toast.success(data?.message);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+    staleTime: 60000,
+    refetchOnWindowFocus: false,
+  } as UseQueryOptions);
+};
+
+export const useWithdrawlBonusUpdate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ data, token }: { data: any; token: string }) =>
+      withdrawlBonusUpdate(data, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
+      if (data?.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries([
+          "withdrawalsBonus",
+          variables.token,
+        ] as any);
       } else {
         toast.error(data?.message);
       }
