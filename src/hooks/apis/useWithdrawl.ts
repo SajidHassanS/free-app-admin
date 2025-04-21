@@ -1,10 +1,4 @@
 import {
-  emailBulkUpdate,
-  getDuplicateEmailsList,
-  getEmailsList,
-  getEmailsStats,
-} from "@/api/emails";
-import {
   getAllWithdrawls,
   getAllWithdrawlsBonus,
   getWithdrawlsStats,

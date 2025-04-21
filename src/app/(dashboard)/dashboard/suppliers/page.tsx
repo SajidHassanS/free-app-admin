@@ -14,6 +14,7 @@ import SupplierModal from "@/components/Forms/forms-modal/supplier/AddSupplier";
 import { Toaster } from "react-hot-toast";
 import { SweetAlert } from "@/components/alerts/SweetAlert";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
+import Link from "next/link";
 
 const Suppliers = () => {
   const { token } = useContextConsumer();
@@ -51,22 +52,43 @@ const Suppliers = () => {
       {
         Header: "Username",
         accessor: "username",
+        Cell: ({ row }: any) => (
+          <Link
+            href={`/dashboard/suppliers/supplier/${row.original.uuid}`}
+            className="text-primary underline italic"
+          >
+            {row.original.username}
+          </Link>
+        ),
       },
       {
         Header: "Phone",
-        accessor: "phone",
+        accessor: "combinedPhone",
+        Cell: ({ row }: any) => {
+          const countryCode = row.original.countryCode || "-";
+          const phone = row.original.phone || "-";
+          return (
+            <span>
+              {countryCode} {phone}
+            </span>
+          );
+        },
       },
       {
-        Header: "Country Code",
-        accessor: "countryCode",
+        Header: "User Title",
+        accessor: "userTitle",
+        Cell: ({ value }: any) => value || "-",
       },
       {
         Header: "Refer Code",
         accessor: "referCode",
+        Cell: ({ value }: any) => value || "-",
       },
       {
         Header: "Bonus",
         accessor: "bonus",
+        Cell: ({ value }: any) =>
+          value !== null && value !== undefined ? value : "-",
       },
       {
         Header: "Status",
@@ -117,7 +139,7 @@ const Suppliers = () => {
       <Toaster />
       <div className="space-y-4 p-10 rounded-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">All Suppliers</h2>
+          <h2 className="text-2xl font-bold text-primary">All Suppliers</h2>
           <Button
             className="text-xs"
             size="sm"

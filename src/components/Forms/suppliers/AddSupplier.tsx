@@ -18,9 +18,26 @@ import {
   useCreateNewSupplier,
   useUpdateSupplier,
 } from "@/hooks/apis/useSupplier";
-import { addNewSupplierFormSchema } from "@/schemas/FormsValidation";
+import {
+  addNewSupplierFormSchema,
+  updateSupplierFormSchema,
+} from "@/schemas/FormsValidation";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { supplierActiveVal, supplierCategory } from "@/constant/data";
+
+type AddSupplierFormType = z.infer<typeof addNewSupplierFormSchema>;
+type UpdateSupplierFormType = z.infer<typeof updateSupplierFormSchema>;
+type CombinedFormType = AddSupplierFormType & Partial<UpdateSupplierFormType>;
 
 const AddSupplierForm = ({
   supplier,
@@ -40,14 +57,20 @@ const AddSupplierForm = ({
   const { mutate: addNewSupplier, isPending: loading } = useCreateNewSupplier();
   const { mutate: updateSupplier, isPending: updating } = useUpdateSupplier();
 
-  const form = useForm<z.infer<typeof addNewSupplierFormSchema>>({
-    resolver: zodResolver(addNewSupplierFormSchema),
+  const formSchema =
+    mode === "add" ? addNewSupplierFormSchema : updateSupplierFormSchema;
+
+  const form = useForm<CombinedFormType>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
       countryCode: "+92",
       phone: "",
       password: "",
       confirmPassword: "",
+      bonus: "",
+      category: "",
+      active: "",
     },
   });
 
@@ -59,12 +82,14 @@ const AddSupplierForm = ({
         countryCode: supplier.countryCode || "",
         phone: supplier.phone || "",
         password: supplier.password || "",
-        confirmPassword: supplier.confirmPassword || "",
+        bonus: supplier.bonus?.toString() || "",
+        category: supplier.category || "",
+        active: supplier.active ? "true" : "false",
       });
     }
   }, [supplier, reset]);
 
-  const onSubmit = (data: z.infer<typeof addNewSupplierFormSchema>) => {
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
     if (mode === "add") {
       addNewSupplier(
         { data, token },
@@ -78,7 +103,12 @@ const AddSupplierForm = ({
       );
     } else if (mode === "edit") {
       const updatedData = {
-        data: { username: data.username, uuid: supplier?.uuid },
+        data: {
+          uuid: supplier?.uuid,
+          bonus: data.bonus,
+          category: data.category,
+          active: data.active,
+        },
         token,
       };
       updateSupplier(updatedData, {
@@ -96,6 +126,127 @@ const AddSupplierForm = ({
       <Form {...form}>
         <form className="2" onSubmit={form.handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3 mb-4">
+            {mode !== "add" && (
+              <>
+                <LabelInputContainer>
+                  <Label>Bonus</Label>
+                  <FormField
+                    control={form.control}
+                    name="bonus"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Enter Bonus"
+                            {...field}
+                            disabled={isViewMode}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+
+                <LabelInputContainer className="mb-1">
+                  <Label htmlFor="category" className="dark:text-farmacieGrey">
+                    Category
+                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value: string) => {
+                              field.onChange(value);
+                            }}
+                            disabled={isViewMode}
+                          >
+                            <SelectTrigger
+                              className={cn(
+                                "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20"
+                              )}
+                            >
+                              <SelectValue
+                                placeholder={
+                                  supplier?.category || "Select Category"
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectGroup>
+                                <SelectLabel>Select Category</SelectLabel>
+                                {supplierCategory.map((status) => (
+                                  <SelectItem
+                                    key={status.value}
+                                    value={status.value}
+                                  >
+                                    {status.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+
+                <LabelInputContainer className="mb-1">
+                  <Label htmlFor="active" className="dark:text-farmacieGrey">
+                    Status
+                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="active"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value: string) => {
+                              field.onChange(value);
+                            }}
+                            disabled={isViewMode}
+                          >
+                            <SelectTrigger
+                              className={cn(
+                                "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20"
+                              )}
+                            >
+                              <SelectValue
+                                className="text-black"
+                                placeholder={
+                                  supplier?.active ? "true" : "Select Status"
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectGroup>
+                                <SelectLabel>Select status</SelectLabel>
+                                {supplierActiveVal.map((status) => (
+                                  <SelectItem
+                                    key={status.value}
+                                    value={status.value}
+                                  >
+                                    {status.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+              </>
+            )}
             <LabelInputContainer>
               <Label htmlFor="full_name">Username</Label>
               <FormField
@@ -105,7 +256,7 @@ const AddSupplierForm = ({
                   <FormItem>
                     <FormControl>
                       <Input
-                        disabled={isViewMode}
+                        disabled={mode !== "add"}
                         placeholder="Username"
                         type="text"
                         className="outline-none focus:border-primary"
@@ -126,7 +277,7 @@ const AddSupplierForm = ({
                   <FormItem>
                     <FormControl>
                       <Input
-                        disabled={isViewMode}
+                        disabled={mode !== "add"}
                         placeholder="+92"
                         {...field}
                       />
@@ -146,7 +297,7 @@ const AddSupplierForm = ({
                   <FormItem>
                     <FormControl>
                       <Input
-                        disabled={isViewMode}
+                        disabled={mode !== "add"}
                         placeholder="3123456789"
                         type="tel"
                         {...field}
@@ -170,6 +321,7 @@ const AddSupplierForm = ({
                         placeholder="••••••••"
                         type={showPassword ? "text" : "password"}
                         id="password"
+                        disabled={mode !== "add"}
                         className="outline-none focus:border-primary"
                         {...field}
                       />
@@ -204,57 +356,58 @@ const AddSupplierForm = ({
                 )}
               />
             </LabelInputContainer>
-
-            <LabelInputContainer className="mb-4">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem className="relative">
-                    <FormControl>
-                      <Input
-                        placeholder="••••••••"
-                        type={confirmShowPassword ? "text" : "password"}
-                        id="confirmPassword"
-                        className="outline-none focus:border-primary"
-                        {...field}
-                      />
-                    </FormControl>
-                    {!confirmShowPassword ? (
-                      <Icon
-                        name="Eye"
-                        size={18}
-                        className={cn(
-                          "absolute right-3.5 -translate-y-1/2 cursor-pointer text-gray-400",
-                          !!form.formState.errors.password
-                            ? "top-[20%]"
-                            : "top-[20%]"
-                        )}
-                        onClick={() =>
-                          setConfirmShowPassword(!confirmShowPassword)
-                        }
-                      />
-                    ) : (
-                      <Icon
-                        name="EyeOff"
-                        size={20}
-                        className={cn(
-                          "absolute right-3.5 -translate-y-1/2 cursor-pointer text-gray-400",
-                          !!form.formState.errors.password
-                            ? "top-[20%]"
-                            : "top-[20%]"
-                        )}
-                        onClick={() =>
-                          setConfirmShowPassword(!confirmShowPassword)
-                        }
-                      />
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </LabelInputContainer>
+            {mode === "add" && (
+              <LabelInputContainer className="mb-4">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem className="relative">
+                      <FormControl>
+                        <Input
+                          placeholder="••••••••"
+                          type={confirmShowPassword ? "text" : "password"}
+                          id="confirmPassword"
+                          className="outline-none focus:border-primary"
+                          {...field}
+                        />
+                      </FormControl>
+                      {!confirmShowPassword ? (
+                        <Icon
+                          name="Eye"
+                          size={18}
+                          className={cn(
+                            "absolute right-3.5 -translate-y-1/2 cursor-pointer text-gray-400",
+                            !!form.formState.errors.password
+                              ? "top-[20%]"
+                              : "top-[20%]"
+                          )}
+                          onClick={() =>
+                            setConfirmShowPassword(!confirmShowPassword)
+                          }
+                        />
+                      ) : (
+                        <Icon
+                          name="EyeOff"
+                          size={20}
+                          className={cn(
+                            "absolute right-3.5 -translate-y-1/2 cursor-pointer text-gray-400",
+                            !!form.formState.errors.password
+                              ? "top-[20%]"
+                              : "top-[20%]"
+                          )}
+                          onClick={() =>
+                            setConfirmShowPassword(!confirmShowPassword)
+                          }
+                        />
+                      )}
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </LabelInputContainer>
+            )}
           </div>
           <Button
             className="w-full text-white font-medium mt-4"

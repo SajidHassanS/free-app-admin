@@ -12,9 +12,6 @@ const createAccountFormSchema = z
     role: z.string().nonempty({
       message: "Select Role",
     }),
-    referCode: z.string().nonempty({
-      message: "Enter reffer code",
-    }),
     password: z
       .string()
       .nonempty({
@@ -82,27 +79,6 @@ const passwordSchema = z
     path: ["confirmPassword"],
   });
 
-const updateProjectFormSchema = z.object({
-  title: z.string().optional(),
-  trade: z.string().optional(),
-  sector: z.string().optional(),
-  description: z.string().optional(),
-  requirements: z.string().optional(),
-  location: z.array(z.number()).length(2).optional(),
-  address: z.string().optional(),
-  tehsil: z.string().optional(),
-  district: z.string().optional(),
-  province: z.string().optional(),
-  duration: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  deadline: z.string().optional(),
-  totalSlots: z
-    .union([z.string(), z.number()])
-    .transform((val) => String(val))
-    .optional(),
-});
-
 const projectFormSchema = z
   .object({
     title: z.string().nonempty({ message: "Project Title is required." }),
@@ -143,11 +119,20 @@ const addNewSupplierFormSchema = z
     phone: z.string().min(10, "Phone is required"),
     password: z.string().min(6, "Password is required"),
     confirmPassword: z.string().min(6, "Confirm your password"),
+    bonus: z.string().optional(),
+    category: z.string().optional(),
+    active: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const updateSupplierFormSchema = z.object({
+  bonus: z.string().min(1, "Bonus is required"),
+  category: z.string().min(1, "Category is required"),
+  active: z.string().min(1, "Status is required"),
+});
 
 const addEmailRewardFormSchema = z.object({
   reward: z.string().nonempty({
@@ -165,6 +150,10 @@ const addBonusFormSchema = z.object({
   bonus: z.string().nonempty({
     message: "Enter bonus",
   }),
+});
+
+const filterEmailSchema = z.object({
+  status: z.string().optional(),
 });
 
 const addPasswordSchema = z.object({
@@ -202,12 +191,12 @@ export {
   profileFormSchema,
   projectFormSchema,
   passwordSchema,
-  updateProjectFormSchema,
   addNewSupplierFormSchema,
   addPasswordSchema,
   addEmailRewardFormSchema,
   addWithdrawThresholdFormSchema,
   addBonusFormSchema,
   bulkEmailUpdate,
+  filterEmailSchema,
   withdrawlUpdate,
 };

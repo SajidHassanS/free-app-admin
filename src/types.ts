@@ -19,11 +19,6 @@ type ForgotPasswordFormValues =
   | { email: string; otp: string }
   | { email: string; newPassword: string; confirmPassword: string };
 
-type PakistanData = {
-  provinces: { label: string; value: string }[];
-  [key: string]: { label: string; value: string }[];
-};
-
 interface Option {
   value: string;
   label: string;

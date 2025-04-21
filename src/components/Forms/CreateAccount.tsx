@@ -53,7 +53,6 @@ export function CreateAccountForm({
       username: "",
       role: "",
       phone: "",
-      referCode: "",
       password: "",
       confirmPassword: "",
     },
@@ -162,27 +161,6 @@ export function CreateAccountForm({
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </LabelInputContainer>
-                  <LabelInputContainer>
-                    <Label htmlFor="referCode">Refer Code</Label>
-                    <FormField
-                      control={form.control}
-                      name="referCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter refer code"
-                              type="text"
-                              id="referCode"
-                              className="outline-none focus:border-primary"
-                              {...field}
-                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

@@ -12,10 +12,10 @@ import {
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
-export const useGetAllEmails = (token: string) => {
+export const useGetAllEmails = (token: string, filters: any) => {
   return useQuery<any, Error>({
     queryKey: ["allEmails", token],
-    queryFn: () => getEmailsList(token),
+    queryFn: () => getEmailsList(token, filters),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);

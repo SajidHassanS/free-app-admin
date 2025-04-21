@@ -3,18 +3,40 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Filter, Pencil, Search, Trash2, X } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { format } from "date-fns";
-import {
-  useBulkEmailUpdate,
-  useGetAllEmails,
-  useGetDuplicateEmails,
-} from "@/hooks/apis/useEmails";
+import { debounce } from "lodash";
+import { useGetAllEmails, useGetDuplicateEmails } from "@/hooks/apis/useEmails";
 import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmail";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { cn } from "@/lib/utils";
+import { filterEmailSchema } from "@/schemas/FormsValidation";
+import LabelInputContainer from "@/components/Forms/LabelInputContainer";
+import { Input } from "@/components/ui/input";
+import { filterStatus, status } from "@/constant/data";
 // import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmailUpdateModal";
 
 const Emails = () => {
@@ -24,19 +46,53 @@ const Emails = () => {
   const [selectedEmailToView, setSelectedEmailToView] = useState({});
   const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const duplicateSectionRef = useRef<HTMLDivElement>(null);
+  const [filterCriteria, setFilterCriteria] = useState({
+    status: "",
+  });
 
-  const { data, isLoading } = useGetAllEmails(token);
+  const form = useForm<z.infer<typeof filterEmailSchema>>({
+    resolver: zodResolver(filterEmailSchema),
+    defaultValues: {
+      status: "",
+    },
+  });
+
+  const { data, isLoading } = useGetAllEmails(token, filterCriteria);
   const { data: duplicateEmailsData, isLoading: duplicateLoading } =
     useGetDuplicateEmails(token);
 
-  const emails = data?.data || [];
   const duplicateEmails = duplicateEmailsData?.data || [];
+
+  const handleSearchChange = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 300);
+
+  const handleFilterSubmit = (criteria: { status?: string }) => {
+    setFilterCriteria({
+      status: criteria.status || "",
+    });
+  };
 
   const handleView = (email: any) => {
     setIsUpdateEmailModalOpen(true);
     setSelectedEmailToView(email);
   };
+
+  const filteredEmails = useMemo(() => {
+    if (!data || !data?.data) return [];
+    return data?.data
+      .filter((emails: any) =>
+        emails.user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .filter((email: any) => {
+        if (filterCriteria.status && email.status !== filterCriteria.status)
+          return false;
+        return true;
+      });
+  }, [data, searchQuery, filterCriteria]);
 
   const handleShowDuplicate = () => {
     setShowDuplicateEmails(true);
@@ -189,7 +245,7 @@ const Emails = () => {
       <Toaster />
       <div className="space-y-4 p-10 rounded-2xl">
         <div className="flex flex-wrap gap-3 items-center justify-between">
-          <h2 className="text-xl font-bold">Available Emails</h2>
+          <h2 className="text-2xl font-bold text-primary">Available Emails</h2>
           <div className="flex gap-2">
             <Button
               className="text-xs"
@@ -205,16 +261,119 @@ const Emails = () => {
             </Button>
           </div>
         </div>
+        <div>
+          <p className="text-md lg:pl-2 font-normal pb-4 text-left dark:text-farmacieGrey">
+            Filter and search the email from the list.
+          </p>
+          <Card
+            className={cn(
+              "w-full py-6 rounded-xl text-center bg-primary/10",
+              showSearch ? "mb-2" : "mb-6"
+            )}
+          >
+            <CardContent className="p-0 px-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleFilterSubmit)}>
+                  <div className="lg:flex justify-between gap-3">
+                    <LabelInputContainer className="max-w-md">
+                      <FormField
+                        control={form.control}
+                        name="status"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                              >
+                                <SelectTrigger
+                                  className={cn(
+                                    "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20",
+                                    !field.value
+                                      ? "dark:text-farmaciePlaceholderMuted"
+                                      : "dark:text-farmacieWhite"
+                                  )}
+                                >
+                                  <SelectValue placeholder="Select Status" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl">
+                                  <SelectGroup>
+                                    <SelectLabel>Status</SelectLabel>
+                                    {filterStatus.map((item) => (
+                                      <SelectItem
+                                        key={item.value}
+                                        value={item.value}
+                                      >
+                                        {item.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+                    <div className="flex gap-2">
+                      <Button
+                        className="lg:col-span-1 w-full text-white font-medium"
+                        type="submit"
+                      >
+                        Filter <Filter size={18} className="ml-1" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="lg:col-span-1 w-full dark:text-farmacieWhite font-medium border border-primary"
+                        type="button"
+                        onClick={() => setShowSearch(true)}
+                      >
+                        Search
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+          {showSearch && (
+            <Card className="w-full py-6 rounded-xl text-center bg-primary/10 mb-6">
+              <CardContent className="p-0 px-6">
+                <div className="flex justify-between items-center gap-2">
+                  <div className="relative max-w-md lg:max-w-lg w-full">
+                    <Input
+                      placeholder="Search email by username ..."
+                      type="text"
+                      className="outline-none border py-5 border-primary rounded-full pl-12 w-full"
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                    />
+                    <Search className="absolute left-3.5 -translate-y-1/2 bottom-0.5 w-5 h-5 text-gray-400" />
+                  </div>
+                  <Button
+                    size="icon"
+                    className="text-white font-medium"
+                    type="button"
+                    onClick={() => setShowSearch(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
         {isLoading ? (
           <SkeletonCard className="w-full h-80" />
-        ) : emails.length <= 0 ? (
+        ) : filteredEmails.length <= 0 ? (
           <p>No Email Data Available!</p>
         ) : (
           <div className="border rounded-2xl">
             <DataTable
               columns={emailColumns}
-              data={emails}
-              paginate={emails.length > 10}
+              data={filteredEmails}
+              paginate={filteredEmails.length > 10}
             />
           </div>
         )}

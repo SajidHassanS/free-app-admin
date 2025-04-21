@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useDeleteSupplier } from "@/hooks/apis/useSupplier";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Edit, Pencil, Plus } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
@@ -19,11 +18,11 @@ const Passwords = () => {
     useState<boolean>(false);
   const [isUpdatePasswordModalOpen, setIsUpdatePasswordModalOpen] =
     useState<boolean>(false);
+  const [isBulkUpdatePasswordModalOpen, setIsBulkUpdatePasswordModalOpen] =
+    useState<boolean>(false);
   const [selectedPasswordToView, setSelectedPasswordToView] = useState({});
 
   const { data, isLoading } = useGetAllPasswords(token);
-  // const { mutate: deletePassword, isPending: deletingPassword } =
-  //   useDeletePassword(token);
 
   const passwords = data?.data || [];
 
@@ -31,19 +30,6 @@ const Passwords = () => {
     setIsUpdatePasswordModalOpen(true);
     setSelectedPasswordToView(password);
   };
-
-  // const handleDelete = async (supplierId: any) => {
-  //   const isConfirmed = await SweetAlert(
-  //     "Delete Supplier?",
-  //     "",
-  //     "warning",
-  //     "Yes, delete it!",
-  //     "#15803D"
-  //   );
-  //   if (isConfirmed) {
-  //     deletePassword(supplierId);
-  //   }
-  // };
 
   const passwordColumns = useMemo(
     () => [
@@ -72,30 +58,6 @@ const Passwords = () => {
           </Badge>
         ),
       },
-      {
-        Header: "",
-        accessor: "actions",
-        Cell: ({ row }: any) => (
-          <div className="flex items-center justify-end gap-2.5">
-            <Button
-              size="icon"
-              variant="outline"
-              className="h-7 w-7"
-              onClick={() => handleView(row.original)}
-            >
-              <Pencil className="h-3.5 w-3.5 text-gray-600" />
-            </Button>
-            <Button
-              size="icon"
-              variant="destructive"
-              className="h-7 w-7"
-              // onClick={() => handleDelete(row.original.uuid)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        ),
-      },
     ],
     []
   );
@@ -106,14 +68,25 @@ const Passwords = () => {
       <div className="space-y-4 p-10 rounded-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">All Passwords</h2>
-          <Button
-            className="text-xs"
-            size="sm"
-            onClick={() => setIsAddPasswordModalOpen(true)}
-          >
-            Create Password
-            <Plus className="h-4 w-4 ml-1 font-bold" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsAddPasswordModalOpen(true)}
+            >
+              Create Password
+              <Plus className="h-4 w-4 ml-1 font-bold" />
+            </Button>
+            {/* //need to work on  */}
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsBulkUpdatePasswordModalOpen(true)}
+            >
+              Bulk Update Password(s)
+              <Edit className="h-4 w-4 ml-1 font-bold" />
+            </Button>
+          </div>
         </div>
         {isLoading ? (
           <SkeletonCard className="w-full h-80" />
@@ -133,6 +106,12 @@ const Passwords = () => {
         open={isAddPasswordModalOpen}
         onOpenChange={setIsAddPasswordModalOpen}
         mode="add"
+      />
+      <PasswordModal
+        open={isBulkUpdatePasswordModalOpen}
+        onOpenChange={setIsBulkUpdatePasswordModalOpen}
+        mode="add"
+        bulkUpdate
       />
       <PasswordModal
         open={isUpdatePasswordModalOpen}

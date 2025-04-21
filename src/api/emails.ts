@@ -1,18 +1,18 @@
 import axios from "axios";
 import { baseURL } from "./auth";
 
-export const getEmailsList = async (token: string) => {
-  try {
-    const res = await axios.get(`${baseURL}/email/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "ngrok-skip-browser-warning": "true",
-      },
-    });
-    return res.data;
-  } catch (error) {
-    return error;
-  }
+export const getEmailsList = async (token: string, filters: any) => {
+  const queryParams = new URLSearchParams();
+  if (filters.status) queryParams.append("status", filters.status);
+  if (filters.username) queryParams.append("username", filters.username);
+
+  const res = await axios.get(`${baseURL}/email?${queryParams.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "ngrok-skip-browser-warning": "true",
+    },
+  });
+  return res.data;
 };
 
 export const getDuplicateEmailsList = async (token: string) => {

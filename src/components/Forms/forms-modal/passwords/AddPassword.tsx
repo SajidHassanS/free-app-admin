@@ -15,6 +15,7 @@ const PasswordModal: React.FC<any> = ({
   onOpenChange,
   mode,
   password,
+  bulkUpdate,
 }) => {
   const [currentMode, setCurrentMode] = useState(mode);
 
@@ -35,7 +36,11 @@ const PasswordModal: React.FC<any> = ({
           )}
         >
           <DialogTitle className="text-primary text-xl font-bold pt-4">
-            {currentMode === "add" ? "Create Password" : "Update Password"}
+            {currentMode === "add" && bulkUpdate
+              ? "Bulk Update Password"
+              : currentMode === "add"
+              ? "Add Password"
+              : "Update Password"}
           </DialogTitle>
           {currentMode === "view" && (
             <Button size="sm" onClick={() => setCurrentMode("edit")}>
@@ -47,6 +52,7 @@ const PasswordModal: React.FC<any> = ({
           mode={currentMode}
           onClose={onOpenChange}
           password={password}
+          bulkUpdate={bulkUpdate}
         />
       </DialogContent>
     </Dialog>

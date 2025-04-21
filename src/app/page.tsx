@@ -7,7 +7,6 @@ import { Toaster } from "react-hot-toast";
 
 export default function LoginPage() {
   const { data: session } = useSession();
-  console.log("Sessionsss: ", session);
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", "light");
     document.documentElement.classList.remove("dark");

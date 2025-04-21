@@ -18,7 +18,6 @@ import { useContextConsumer } from "@/context/Context";
 import { Plus, Trash } from "lucide-react";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
-import * as z from "zod";
 import {
   useCreateNewPassword,
   useUpdatePassword,
@@ -29,10 +28,12 @@ const AddPasswordForm = ({
   mode,
   onClose,
   password,
+  bulkUpdate,
 }: {
   mode: "add" | "view" | "edit";
   onClose: () => void;
   password: any;
+  bulkUpdate?: boolean;
 }) => {
   const isViewMode = mode === "view";
   const { token } = useContextConsumer();
@@ -44,7 +45,6 @@ const AddPasswordForm = ({
 
   const form = useForm({
     resolver: zodResolver(addPasswordSchema),
-    // defaultValues: { passwords: [""] },
     shouldUnregister: true,
   });
 
@@ -68,10 +68,8 @@ const AddPasswordForm = ({
   }, [fields, append, mode]);
 
   const onSubmit = (data: any) => {
-    if (mode === "add") {
-      const passwords = data.passwords.filter(
-        (name: any) => name.trim() !== ""
-      );
+    const passwords = data.passwords.filter((name: any) => name.trim() !== "");
+    if (mode === "add" && !bulkUpdate) {
       createPassword(
         { data: { passwords }, token },
         {
@@ -80,13 +78,9 @@ const AddPasswordForm = ({
           },
         }
       );
-    } else if (mode === "edit") {
-      const updatedData = {
-        // password: password.password,
-        passwords: [data.passwords[0]],
-      };
+    } else if (bulkUpdate) {
       updatePassword(
-        { data: updatedData },
+        { data: { passwords } },
         {
           onSuccess: (log) => {
             if (log?.success) {
@@ -176,13 +170,16 @@ const AddPasswordForm = ({
             )}
           </div>
         ))}
-
         <Button
           className="w-full text-white font-medium mt-4"
           type="submit"
           disabled={isViewMode}
         >
-          {mode === "add" ? "Create Password(s)" : "Update"}
+          {mode === "add" && bulkUpdate
+            ? "Bulk Update Passwords"
+            : mode === "add"
+            ? "Create Password(s)"
+            : "Update Password"}
         </Button>
       </form>
     </Form>

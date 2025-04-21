@@ -199,8 +199,7 @@ export default function ProfileForm() {
           </div>
           <LabelInputContainer>
             <div className="pt-3">
-            <StatusBadge verified={profileForm.watch("verified") ?? false} />
-
+              <StatusBadge verified={profileForm.watch("verified")} />
             </div>
           </LabelInputContainer>
         </div>

@@ -1,6 +1,7 @@
 import {
   createSupplier,
   deleteSupplier,
+  getSupplier,
   getSupplierList,
   updateSupplier,
 } from "@/api/suppliers";
@@ -45,6 +46,26 @@ export const useGetAllSuppliers = (token: string) => {
     onError: (error: any) => {
       toast.error(error?.response?.data?.message);
     },
+    staleTime: 60000,
+    refetchOnWindowFocus: false,
+  } as UseQueryOptions);
+};
+
+export const useGetSupplier = (uuid: string, token: string) => {
+  return useQuery<any, Error>({
+    queryKey: ["supplier", uuid, token],
+    queryFn: () => getSupplier(uuid, token),
+    onSuccess: (data: any) => {
+      if (data?.success) {
+        toast.success(data?.message);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+    enabled: !!uuid,
     staleTime: 60000,
     refetchOnWindowFocus: false,
   } as UseQueryOptions);

@@ -1,9 +1,9 @@
 import axios from "axios";
 import { baseURL } from "./auth";
 
-export const getSupplierList = async (token: string) => {
+export const getWithdrawlsStats = async (token: string) => {
   try {
-    const res = await axios.get(`${baseURL}/supplier/list`, {
+    const res = await axios.get(`${baseURL}/withdrawal/stats`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
@@ -15,9 +15,9 @@ export const getSupplierList = async (token: string) => {
   }
 };
 
-export const getSupplier = async (uuid: any, token: string) => {
+export const getAllWithdrawls = async (token: string) => {
   try {
-    const res = await axios.get(`${baseURL}/supplier?uuid=${uuid}`, {
+    const res = await axios.get(`${baseURL}/withdrawal/all`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
@@ -29,30 +29,13 @@ export const getSupplier = async (uuid: any, token: string) => {
   }
 };
 
-export const createSupplier = async (data: any, token: any) => {
+export const withdrawlUpdate = async (data: any, token: string) => {
   try {
-    const res = await axios.post(`${baseURL}/supplier`, data, {
+    const res = await axios.patch(`${baseURL}/withdrawal/handle`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    return res.data;
-  } catch (error) {
-    return error;
-  }
-};
-
-export const updateSupplier = async (data: any, token: string) => {
-  try {
-    const res = await axios.patch(
-      `${baseURL}/supplier?uuid=${data.uuid}`,
-      data,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
 
     return res.data;
   } catch (error) {
@@ -60,11 +43,26 @@ export const updateSupplier = async (data: any, token: string) => {
   }
 };
 
-export const deleteSupplier = async (uuid: any, token: string) => {
+export const withdrawlBonusUpdate = async (data: any, token: string) => {
   try {
-    const res = await axios.delete(`${baseURL}/supplier?uuid=${uuid}`, {
+    const res = await axios.patch(`${baseURL}/withdrawal/bonus`, data, {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllWithdrawlsBonus = async (token: string) => {
+  try {
+    const res = await axios.get(`${baseURL}/withdrawal/bonus/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
       },
     });
     return res.data;

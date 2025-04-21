@@ -1,10 +1,4 @@
-import { getMessages, getUnreadCount, getUsersList } from "@/api/chat";
-import {
-  createSupplier,
-  deleteSupplier,
-  getSupplierList,
-  updateSupplier,
-} from "@/api/suppliers";
+import { getMessages, getUsersList, markAllAsRead } from "@/api/chat";
 import {
   useMutation,
   useQuery,
@@ -52,13 +46,18 @@ export const useUserMessagesHistory = (uuid: string, token: string) => {
   } as UseQueryOptions);
 };
 
-export const useGetUnreadMessageCount = (uuid: string, token: string) => {
-  return useQuery<any, Error>({
-    queryKey: ["unreadMessageCount", uuid, token],
-    queryFn: () => getUnreadCount(uuid, token),
-    onSuccess: (data: any) => {
+export const useMarkAsReadMessage = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ data, token }: { data: any; token: string }) =>
+      markAllAsRead(data, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
       if (data?.success) {
-        toast.success(data?.message);
+        toast.success(data.message);
+        queryClient.invalidateQueries([
+          "unreadMessageCount",
+          variables.token,
+        ] as any);
       } else {
         toast.error(data?.message);
       }
@@ -66,8 +65,5 @@ export const useGetUnreadMessageCount = (uuid: string, token: string) => {
     onError: (error: any) => {
       toast.error(error?.response?.data?.message);
     },
-    enabled: !!uuid,
-    staleTime: 60000,
-    refetchOnWindowFocus: false,
-  } as UseQueryOptions);
+  });
 };

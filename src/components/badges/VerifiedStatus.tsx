@@ -2,7 +2,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type StatusBadgeProps = {
-  verified: boolean;
+  verified?: boolean;
 };
 
 export const StatusBadge = ({ verified }: StatusBadgeProps) => {
