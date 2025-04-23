@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
 import { Filter, Pencil, Search, Trash2, X } from "lucide-react";
@@ -36,16 +36,21 @@ import { cn } from "@/lib/utils";
 import { filterEmailSchema } from "@/schemas/FormsValidation";
 import LabelInputContainer from "@/components/Forms/LabelInputContainer";
 import { Input } from "@/components/ui/input";
-import { filterStatus, status } from "@/constant/data";
+import { filterStatus } from "@/constant/data";
+import { useSearchParams } from "next/navigation";
+import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
+
 // import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmailUpdateModal";
 
 const Emails = () => {
   const { token } = useContextConsumer();
+  const searchParams = useSearchParams();
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [showDuplicateEmails, setShowDuplicateEmails] = useState(false);
   const [selectedEmailToView, setSelectedEmailToView] = useState({});
   const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
+  const [isInsertEmailsModalOpen, setIsInsertEmailsModalOpen] = useState(false);
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const duplicateSectionRef = useRef<HTMLDivElement>(null);
@@ -70,9 +75,9 @@ const Emails = () => {
     setSearchQuery(value);
   }, 300);
 
-  const handleFilterSubmit = (criteria: { status?: string }) => {
+  const handleFilterSubmit = (criteria: any) => {
     setFilterCriteria({
-      status: criteria.status || "",
+      ...criteria,
     });
   };
 
@@ -106,6 +111,16 @@ const Emails = () => {
       prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
     );
   };
+
+  useEffect(() => {
+    const scrollParam = searchParams.get("scroll");
+    if (scrollParam === "duplicate") {
+      setShowDuplicateEmails(true);
+      setTimeout(() => {
+        duplicateSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+    }
+  }, [searchParams]);
 
   const duplicateColumns = useMemo(
     () => [
@@ -150,7 +165,7 @@ const Emails = () => {
         Header: "",
         accessor: "select",
         Cell: ({ row }: any) =>
-          row.original.status === "bad" && (
+          row.original.status === "pending" && (
             <input
               type="checkbox"
               checked={selectedUUIDs.includes(row.original.uuid)}
@@ -256,6 +271,13 @@ const Emails = () => {
             >
               Bulk Update
             </Button>
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsInsertEmailsModalOpen(true)}
+            >
+              Bulk Insert Emails
+            </Button>
             <Button className="text-xs" size="sm" onClick={handleShowDuplicate}>
               Show Duplicate Email
             </Button>
@@ -274,30 +296,20 @@ const Emails = () => {
             <CardContent className="p-0 px-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleFilterSubmit)}>
-                  <div className="lg:flex justify-between gap-3">
-                    <LabelInputContainer className="max-w-md">
+                  <div className="lg:grid grid-cols-3 xl:grid-cols-6 gap-4">
+                    {/* Status */}
+                    <LabelInputContainer>
                       <FormField
                         control={form.control}
                         name="status"
                         render={({ field }) => (
                           <FormItem>
                             <FormControl>
-                              <Select
-                                onValueChange={(value) => {
-                                  field.onChange(value);
-                                }}
-                              >
-                                <SelectTrigger
-                                  className={cn(
-                                    "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20",
-                                    !field.value
-                                      ? "dark:text-farmaciePlaceholderMuted"
-                                      : "dark:text-farmacieWhite"
-                                  )}
-                                >
+                              <Select onValueChange={field.onChange}>
+                                <SelectTrigger>
                                   <SelectValue placeholder="Select Status" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl">
+                                <SelectContent>
                                   <SelectGroup>
                                     <SelectLabel>Status</SelectLabel>
                                     {filterStatus.map((item) => (
@@ -309,6 +321,100 @@ const Emails = () => {
                                       </SelectItem>
                                     ))}
                                   </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+
+                    {/* Start Date */}
+                    <LabelInputContainer>
+                      <FormField
+                        control={form.control}
+                        name="startDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="date"
+                                placeholder="Start Date"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+
+                    {/* End Date */}
+                    <LabelInputContainer>
+                      <FormField
+                        control={form.control}
+                        name="endDate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input
+                                type="date"
+                                placeholder="End Date"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+
+                    {/* Order By */}
+                    <LabelInputContainer>
+                      <FormField
+                        control={form.control}
+                        name="orderBy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Order By" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="createdAt">
+                                    Created At
+                                  </SelectItem>
+                                  <SelectItem value="updatedAt">
+                                    Updated At
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+
+                    {/* Order */}
+                    <LabelInputContainer>
+                      <FormField
+                        control={form.control}
+                        name="order"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select onValueChange={field.onChange}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Order" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="ASC">Ascending</SelectItem>
+                                  <SelectItem value="DESC">
+                                    Descending
+                                  </SelectItem>
                                 </SelectContent>
                               </Select>
                             </FormControl>
@@ -403,6 +509,10 @@ const Emails = () => {
         open={isBulkUpdateModalOpen}
         onClose={setIsBulkUpdateModalOpen}
         uuids={selectedUUIDs}
+      />
+      <InsertEmailsModals
+        open={isInsertEmailsModalOpen}
+        onOpenChange={setIsInsertEmailsModalOpen}
       />
     </>
   );

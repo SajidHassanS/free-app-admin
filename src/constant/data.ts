@@ -1008,6 +1008,14 @@ export const navItems = [
   {
     title: "Emails",
     url: "/dashboard/emails",
+    icon: "mail",
+    isActive: false,
+    shortcut: ["e", "e"],
+    items: [],
+  },
+  {
+    title: "Duplicate Emails",
+    url: "/dashboard/emails?scroll=duplicate",
     icon: "mailList",
     isActive: false,
     shortcut: ["e", "e"],

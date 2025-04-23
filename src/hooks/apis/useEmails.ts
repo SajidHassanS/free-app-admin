@@ -3,6 +3,8 @@ import {
   getDuplicateEmailsList,
   getEmailsList,
   getEmailsStats,
+  getSupplierList,
+  insertEmails,
 } from "@/api/emails";
 import {
   useMutation,
@@ -86,4 +88,42 @@ export const useBulkEmailUpdate = () => {
       toast.error(error?.response?.data?.message);
     },
   });
+};
+
+export const useInsertEmails = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ data, token }: { data: any; token: string }) =>
+      insertEmails(data, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
+      if (data?.success) {
+        toast.success(data?.message);
+        queryClient.invalidateQueries(["allEmails", variables.token] as any);
+      } else {
+        toast.error(data?.response?.data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message);
+    },
+  });
+};
+
+export const useGetSupplierList = (token: string) => {
+  return useQuery<any, Error>({
+    queryKey: ["suppliers", token],
+    queryFn: () => getSupplierList(token),
+    onSuccess: (data: any) => {
+      if (data?.success) {
+        toast.success(data?.message);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+    staleTime: 60000,
+    refetchOnWindowFocus: false,
+  } as UseQueryOptions);
 };

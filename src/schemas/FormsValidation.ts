@@ -154,6 +154,10 @@ const addBonusFormSchema = z.object({
 
 const filterEmailSchema = z.object({
   status: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  orderBy: z.string().optional(),
+  order: z.string().optional(),
 });
 
 const addPasswordSchema = z.object({
@@ -185,6 +189,13 @@ const withdrawlUpdate = z.object({
   }),
 });
 
+const insertEmails = z.object({
+  userUuid: z.string().nonempty({ message: "Please select a supplier" }),
+  emails: z.string().nonempty({ message: "Please enter at least one email" }),
+  status: z.string().nonempty({ message: "Select a status" }),
+  remarks: z.string().optional(),
+});
+
 export {
   createAccountFormSchema,
   loginAccountFormSchema,
@@ -199,4 +210,5 @@ export {
   bulkEmailUpdate,
   filterEmailSchema,
   withdrawlUpdate,
+  insertEmails,
 };
