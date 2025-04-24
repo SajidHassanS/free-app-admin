@@ -1,18 +1,22 @@
 import axios from "axios";
 import { baseURL } from "./auth";
 
-export const getSupplierList = async (token: string) => {
-  try {
-    const res = await axios.get(`${baseURL}/supplier/list`, {
+export const getSupplierList = async (token: string, filters: any) => {
+  const queryParams = new URLSearchParams();
+
+  if (filters.active) queryParams.append("active", filters.active);
+
+  const res = await axios.get(
+    `${baseURL}/supplier/list?${queryParams.toString()}`,
+    {
       headers: {
         Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
       },
-    });
-    return res.data;
-  } catch (error) {
-    return error;
-  }
+    }
+  );
+
+  return res.data;
 };
 
 export const getSupplier = async (uuid: any, token: string) => {

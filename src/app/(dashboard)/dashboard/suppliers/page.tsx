@@ -7,7 +7,15 @@ import {
 } from "@/hooks/apis/useSupplier";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Filter,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import SupplierModal from "@/components/Forms/forms-modal/supplier/AddSupplier";
@@ -15,6 +23,29 @@ import { Toaster } from "react-hot-toast";
 import { SweetAlert } from "@/components/alerts/SweetAlert";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { filterSupplierSchema } from "@/schemas/FormsValidation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import LabelInputContainer from "@/components/Forms/LabelInputContainer";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { debounce } from "lodash";
 
 const Suppliers = () => {
   const { token } = useContextConsumer();
@@ -23,11 +54,62 @@ const Suppliers = () => {
   const [isUpdateSupplierModalOpen, setIsUpdateSupplierModalOpen] =
     useState<boolean>(false);
   const [selectedSupplierToView, setSelectedSupplierToView] = useState({});
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showSearch, setShowSearch] = useState<boolean>(false);
+  const [filterCriteria, setFilterCriteria] = useState<any>({
+    active: "",
+  });
 
-  const { data, isLoading } = useGetAllSuppliers(token);
+  const form = useForm<z.infer<typeof filterSupplierSchema>>({
+    resolver: zodResolver(filterSupplierSchema),
+    defaultValues: {
+      active: "",
+    },
+  });
+
+  const { data, refetch, isLoading } = useGetAllSuppliers(
+    token,
+    filterCriteria
+  );
   const { mutate: deleteSupplier, isPending: deletingSupplier } =
     useDeleteSupplier(token);
-  const suppliers = data?.data || [];
+
+  const handleSearchChange = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 300);
+
+  const handleFilterSubmit = (criteria: any) => {
+    setFilterCriteria({
+      ...criteria,
+    });
+  };
+
+  const handleClearFilters = () => {
+    form.reset();
+    setFilterCriteria({ active: "" });
+    setSearchQuery("");
+    setShowSearch(false);
+  };
+
+  const filteredSuppliers = useMemo(() => {
+    if (!data || !data?.data) return [];
+    return data?.data
+      .filter((supp: any) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          supp?.username?.toLowerCase().includes(searchLower) ||
+          supp?.phone?.toLowerCase().includes(searchLower) ||
+          supp?.userTitle?.toLowerCase().includes(searchLower)
+        );
+      })
+      .filter((sup: any) => {
+        if (filterCriteria.active !== "") {
+          const isActive = filterCriteria.active === "true";
+          if (sup.active !== isActive) return false;
+        }
+        return true;
+      });
+  }, [data, searchQuery, filterCriteria]);
 
   const handleView = (supplier: any) => {
     setIsUpdateSupplierModalOpen(true);
@@ -124,6 +206,7 @@ const Suppliers = () => {
               variant="destructive"
               className="h-7 w-7"
               onClick={() => handleDelete(row.original.uuid)}
+              disabled={deletingSupplier}
             >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
@@ -149,16 +232,114 @@ const Suppliers = () => {
             <Plus className="h-4 w-4 ml-1 font-bold" />
           </Button>
         </div>
+        <div>
+          <p className="text-md lg:pl-2 font-normal pb-4 text-left dark:text-farmacieGrey">
+            Filter and search the email from the list.
+          </p>
+          <Card
+            className={cn(
+              "w-full py-6 rounded-xl text-center bg-primary/10",
+              showSearch ? "mb-2" : "mb-6"
+            )}
+          >
+            <CardContent className="p-0 px-6">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleFilterSubmit)}>
+                  <div className="lg:grid grid-cols-2 xl:grid-cols-4 gap-4">
+                    <LabelInputContainer>
+                      <FormField
+                        control={form.control}
+                        name="active"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="true">Active</SelectItem>
+                                  <SelectItem value="false">
+                                    Inactive
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </LabelInputContainer>
+
+                    <div className="flex gap-2">
+                      <Button
+                        className="lg:col-span-1 w-full text-white font-medium"
+                        type="submit"
+                      >
+                        Filter <Filter size={18} className="ml-1" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        className="w-full dark:text-farmacieWhite font-medium border border-primary"
+                        type="button"
+                        onClick={handleClearFilters}
+                      >
+                        <RotateCcw size={18} className="ml-1" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="lg:col-span-1 w-full dark:text-farmacieWhite font-medium border border-primary"
+                        type="button"
+                        onClick={() => setShowSearch(true)}
+                      >
+                        Search
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+          {showSearch && (
+            <Card className="w-full py-6 rounded-xl text-center bg-primary/10 my-3">
+              <CardContent className="p-0 px-6">
+                <div className="flex justify-between items-center gap-2">
+                  <div className="relative max-w-md lg:max-w-lg w-full">
+                    <Input
+                      placeholder="Search supplier by username, phone or userTitle..."
+                      type="text"
+                      className="outline-none border py-5 border-primary rounded-full pl-12 w-full"
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                    />
+                    <Search className="absolute left-3.5 -translate-y-1/2 bottom-0.5 w-5 h-5 text-gray-400" />
+                  </div>
+                  <Button
+                    size="icon"
+                    className="text-white font-medium"
+                    type="button"
+                    onClick={() => setShowSearch(false)}
+                  >
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
         {isLoading ? (
           <SkeletonCard className="w-full h-80" />
-        ) : suppliers.length <= 0 ? (
-          <p>No Suppliers Data Available!</p>
+        ) : filteredSuppliers.length <= 0 ? (
+          <p>No filteredSuppliers Data Available!</p>
         ) : (
           <div className="border rounded-2xl">
             <DataTable
               columns={supplierColumns}
-              data={suppliers}
-              paginate={suppliers.length > 10}
+              data={filteredSuppliers}
+              paginate={filteredSuppliers.length > 10}
             />
           </div>
         )}

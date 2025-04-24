@@ -34,10 +34,10 @@ export const useCreateNewSupplier = () => {
   });
 };
 
-export const useGetAllSuppliers = (token: string) => {
+export const useGetAllSuppliers = (token: string, filters: any) => {
   return useQuery<any, Error>({
     queryKey: ["allSuppliers", token],
-    queryFn: () => getSupplierList(token),
+    queryFn: () => getSupplierList(token, filters),
     onSuccess: (data: any) => {
       if (data?.success) {
         toast.success(data?.message);

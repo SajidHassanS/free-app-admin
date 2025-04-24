@@ -189,6 +189,10 @@ const insertEmails = z.object({
   remarks: z.string().optional(),
 });
 
+const filterSupplierSchema = z.object({
+  active: z.string().optional(),
+});
+
 export {
   createAccountFormSchema,
   loginAccountFormSchema,
@@ -204,4 +208,5 @@ export {
   filterEmailSchema,
   withdrawlUpdate,
   insertEmails,
+  filterSupplierSchema,
 };
