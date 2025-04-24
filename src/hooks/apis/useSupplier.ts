@@ -1,8 +1,10 @@
 import {
   createSupplier,
+  deleteSecondaryPhone,
   deleteSupplier,
   getSupplier,
   getSupplierList,
+  updateSecondaryNo,
   updateSupplier,
 } from "@/api/suppliers";
 import {
@@ -98,6 +100,43 @@ export const useDeleteSupplier = (token: string) => {
       if (data?.success) {
         toast.success(data?.message);
         queryClient.invalidateQueries(["allSuppliers", variables.token] as any);
+      } else {
+        toast.error(data?.response?.data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message);
+    },
+  });
+};
+
+export const useUpdateSecondary = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ data, token }: { data: any; token: string }) =>
+      updateSecondaryNo(data, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
+      if (data?.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries(["supplier", variables.token] as any);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
+};
+
+export const useDeleteSecondaryPhone = (token: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (uuid: any) => deleteSecondaryPhone(uuid, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
+      if (data?.success) {
+        toast.success(data?.message);
+        queryClient.invalidateQueries(["supplier", variables.token] as any);
       } else {
         toast.error(data?.response?.data?.message);
       }

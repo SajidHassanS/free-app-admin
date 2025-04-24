@@ -1,21 +1,47 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
-import { useGetSupplier } from "@/hooks/apis/useSupplier";
+import {
+  useDeleteSecondaryPhone,
+  useGetSupplier,
+  useUpdateSecondary,
+} from "@/hooks/apis/useSupplier";
 import { Toaster } from "react-hot-toast";
 import Image from "next/image";
 import { baseURL } from "@/api/auth";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Check } from "lucide-react";
+import { SweetAlert } from "@/components/alerts/SweetAlert";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const SupplierDetails = ({ params }: { params: { id: string } }) => {
   const { token } = useContextConsumer();
   const router = useRouter();
+
   const { data: supplierDetails, isLoading: detailsLoading } = useGetSupplier(
     params.id!,
     token
   );
+
+  const { mutate: updatePhone, isPending: updating } = useUpdateSecondary();
+  const { mutate: deleteSecondaryNo, isPending: deleting } =
+    useDeleteSecondaryPhone(token);
+
+  const [editStates, setEditStates] = useState<{
+    [uuid: string]: { value: string; isEditing: boolean };
+  }>({});
+
+  useEffect(() => {
+    if (supplierDetails?.data?.phones?.length > 0) {
+      const initial: any = {};
+      supplierDetails.data.phones.forEach((p: any) => {
+        initial[p.uuid] = { value: p.phone, isEditing: false };
+      });
+      setEditStates(initial);
+    }
+  }, [supplierDetails]);
 
   if (!supplierDetails || !supplierDetails.data) {
     return (
@@ -35,6 +61,51 @@ const SupplierDetails = ({ params }: { params: { id: string } }) => {
     bonus,
   } = supplierDetails.data;
 
+  const handleDelete = async (id: any) => {
+    const isConfirmed = await SweetAlert(
+      "Delete Phone?",
+      "",
+      "warning",
+      "Yes, delete it!",
+      "#15803D"
+    );
+    if (isConfirmed) {
+      deleteSecondaryNo(id);
+    }
+  };
+
+  const handleEditToggle = (uuid: string) => {
+    setEditStates((prev) => ({
+      ...prev,
+      [uuid]: { ...prev[uuid], isEditing: true },
+    }));
+  };
+
+  const handleInputChange = (uuid: string, value: string) => {
+    setEditStates((prev) => ({
+      ...prev,
+      [uuid]: { ...prev[uuid], value },
+    }));
+  };
+
+  const handleUpdate = (uuid: string, phone: string, countryCode: string) => {
+    const updated = editStates[uuid];
+    if (!updated || !updated.value || updated.value === phone) return;
+
+    const data = {
+      uuid,
+      phone: updated.value,
+      countryCode,
+    };
+
+    updatePhone({ data, token });
+
+    setEditStates((prev) => ({
+      ...prev,
+      [uuid]: { ...prev[uuid], isEditing: false },
+    }));
+  };
+
   return (
     <>
       <Toaster />
@@ -51,6 +122,7 @@ const SupplierDetails = ({ params }: { params: { id: string } }) => {
             Supplier Details
           </h2>
         </div>
+
         {detailsLoading ? (
           <SkeletonCard className="w-full h-40" />
         ) : (
@@ -101,17 +173,76 @@ const SupplierDetails = ({ params }: { params: { id: string } }) => {
                 </div>
               </div>
             </div>
+
             {phones && phones.length > 0 && (
               <div className="bg-white border border-primary rounded-xl p-5">
                 <h4 className="text-lg font-semibold mb-3 text-gray-700">
                   Secondary Phones
                 </h4>
                 <ul className="divide-y divide-gray-200">
-                  {phones.map((p: any, idx: number) => (
-                    <li key={idx} className="py-2 text-gray-800">
-                      {p.countryCode} {p.phone}
-                    </li>
-                  ))}
+                  {phones.map((p: any) => {
+                    const state = editStates[p.uuid] || {
+                      value: p.phone,
+                      isEditing: false,
+                    };
+
+                    return (
+                      <li
+                        key={p.uuid}
+                        className="py-3 text-gray-800 flex justify-between items-center"
+                      >
+                        <div className="flex flex-col w-full">
+                          <span className="text-sm text-gray-500">
+                            {p.countryCode}
+                          </span>
+                          {state.isEditing ? (
+                            <Input
+                              value={state.value}
+                              onChange={(e) =>
+                                handleInputChange(p.uuid, e.target.value)
+                              }
+                              className="w-full max-w-xs text-sm"
+                            />
+                          ) : (
+                            <span className="text-sm">{p.phone}</span>
+                          )}
+                        </div>
+                        <div className="flex gap-2 ml-4">
+                          {state.isEditing ? (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() =>
+                                handleUpdate(p.uuid, p.phone, p.countryCode)
+                              }
+                              disabled={updating}
+                              title="Update"
+                            >
+                              <Check className="w-4 h-4 text-green-600" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleEditToggle(p.uuid)}
+                              title="Edit"
+                            >
+                              <Pencil className="w-4 h-4 text-blue-600" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleDelete(p.uuid)}
+                            disabled={deleting}
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-600" />
+                          </Button>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}

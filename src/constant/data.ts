@@ -9,11 +9,6 @@ export const role = [
   { value: "superadmin", label: "Super Admin" },
 ];
 
-export const status = [
-  { value: "good", label: "Good" },
-  { value: "bad", label: "Bad" },
-];
-
 export const filterStatus = [
   { value: "good", label: "Good" },
   { value: "bad", label: "Bad" },

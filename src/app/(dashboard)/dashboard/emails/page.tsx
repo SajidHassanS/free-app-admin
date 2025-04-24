@@ -48,7 +48,7 @@ const Emails = () => {
   const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [showDuplicateEmails, setShowDuplicateEmails] = useState(false);
   const [selectedEmailToView, setSelectedEmailToView] = useState({});
-  const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
+  // const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
   const [isInsertEmailsModalOpen, setIsInsertEmailsModalOpen] = useState(false);
   const [showSearch, setShowSearch] = useState<boolean>(false);
@@ -81,10 +81,10 @@ const Emails = () => {
     });
   };
 
-  const handleView = (email: any) => {
-    setIsUpdateEmailModalOpen(true);
-    setSelectedEmailToView(email);
-  };
+  // const handleView = (email: any) => {
+  //   setIsUpdateEmailModalOpen(true);
+  //   setSelectedEmailToView(email);
+  // };
 
   const filteredEmails = useMemo(() => {
     if (!data || !data?.data) return [];
@@ -106,11 +106,11 @@ const Emails = () => {
     }, 200);
   };
 
-  const toggleEmailSelection = (uuid: string) => {
-    setSelectedUUIDs((prev) =>
-      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
-    );
-  };
+  // const toggleEmailSelection = (uuid: string) => {
+  //   setSelectedUUIDs((prev) =>
+  //     prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
+  //   );
+  // };
 
   useEffect(() => {
     const scrollParam = searchParams.get("scroll");
@@ -161,18 +161,18 @@ const Emails = () => {
 
   const emailColumns = useMemo(
     () => [
-      {
-        Header: "",
-        accessor: "select",
-        Cell: ({ row }: any) =>
-          row.original.status === "pending" && (
-            <input
-              type="checkbox"
-              checked={selectedUUIDs.includes(row.original.uuid)}
-              onChange={() => toggleEmailSelection(row.original.uuid)}
-            />
-          ),
-      },
+      // {
+      //   Header: "",
+      //   accessor: "select",
+      //   Cell: ({ row }: any) =>
+      //     row.original.status === "pending" && (
+      //       <input
+      //         type="checkbox"
+      //         checked={selectedUUIDs.includes(row.original.uuid)}
+      //         onChange={() => toggleEmailSelection(row.original.uuid)}
+      //       />
+      //     ),
+      // },
       {
         Header: "Supplier",
         accessor: "user.username",
@@ -232,27 +232,27 @@ const Emails = () => {
         Cell: ({ row }: any) =>
           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
       },
-      {
-        Header: "",
-        accessor: "actions",
-        Cell: ({ row }: any) => (
-          <div className="flex items-center justify-end gap-2.5">
-            <Button
-              size="icon"
-              variant="outline"
-              className="h-7 w-7"
-              onClick={() => handleView(row.original)}
-            >
-              <Pencil className="h-3.5 w-3.5 text-gray-600" />
-            </Button>
-            <Button size="icon" variant="destructive" className="h-7 w-7">
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        ),
-      },
+      // {
+      //   Header: "",
+      //   accessor: "actions",
+      //   Cell: ({ row }: any) => (
+      //     <div className="flex items-center justify-end gap-2.5">
+      //       <Button
+      //         size="icon"
+      //         variant="outline"
+      //         className="h-7 w-7"
+      //         onClick={() => handleView(row.original)}
+      //       >
+      //         <Pencil className="h-3.5 w-3.5 text-gray-600" />
+      //       </Button>
+      //       <Button size="icon" variant="destructive" className="h-7 w-7">
+      //         <Trash2 className="h-3.5 w-3.5" />
+      //       </Button>
+      //     </div>
+      //   ),
+      // },
     ],
-    [selectedUUIDs]
+    []
   );
 
   return (
@@ -266,7 +266,7 @@ const Emails = () => {
               className="text-xs"
               size="sm"
               variant="outline"
-              disabled={selectedUUIDs.length === 0}
+              // disabled={selectedUUIDs.length === 0}
               onClick={() => setIsBulkUpdateModalOpen(true)}
             >
               Bulk Update
@@ -508,7 +508,7 @@ const Emails = () => {
       <BulkEmailUpdateModal
         open={isBulkUpdateModalOpen}
         onClose={setIsBulkUpdateModalOpen}
-        uuids={selectedUUIDs}
+        // uuids={selectedUUIDs}
       />
       <InsertEmailsModals
         open={isInsertEmailsModalOpen}

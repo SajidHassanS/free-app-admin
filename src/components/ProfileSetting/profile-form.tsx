@@ -272,7 +272,9 @@ export default function ProfileForm() {
                           "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20"
                         )}
                       >
-                        <SelectValue placeholder="Select Role" />
+                        <SelectValue
+                          placeholder={apiUser.data.role || "Select Role"}
+                        />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectGroup>

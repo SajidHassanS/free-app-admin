@@ -161,26 +161,19 @@ const filterEmailSchema = z.object({
 });
 
 const addPasswordSchema = z.object({
-  passwords: z
-    .array(
-      z
-        .string()
-        .min(8, "Password must be at least 8 characters long.")
-        .regex(
-          passwordRegex,
-          "Password must contain at least one uppercase letter, one numeric digit and one special character."
-        )
-    )
-    .min(1, "At least one password is required"),
+  passwords: z.array(
+    z.string().nonempty({
+      message: "Password is required",
+    })
+  ),
 });
 
 const bulkEmailUpdate = z.object({
+  emails: z.string().nonempty({ message: "Please enter at least one email" }),
   status: z.string().nonempty({
     message: "Select Status",
   }),
-  remarks: z.string().nonempty({
-    message: "Enter Remarks",
-  }),
+  remarks: z.string().optional(),
 });
 
 const withdrawlUpdate = z.object({

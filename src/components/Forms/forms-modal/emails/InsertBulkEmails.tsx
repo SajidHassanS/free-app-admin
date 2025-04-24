@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { insertEmails } from "@/schemas/FormsValidation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { status } from "@/constant/data";
+import { filterStatus } from "@/constant/data";
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import { useGetSupplierList, useInsertEmails } from "@/hooks/apis/useEmails";
 import { useContextConsumer } from "@/context/Context";
 import { Textarea } from "@/components/ui/textarea";
 
-const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange, onClose }) => {
+const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
   const { token } = useContextConsumer();
 
   const form = useForm<z.infer<typeof insertEmails>>({
@@ -78,7 +78,6 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange, onClose }) => {
         <Form {...form}>
           <form className="2" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-3 mb-4">
-              {/* Supplier Dropdown */}
               <LabelInputContainer className="mb-1">
                 <Label htmlFor="userUuid" className="dark:text-farmacieGrey">
                   Select Supplier
@@ -114,7 +113,6 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange, onClose }) => {
                 />
               </LabelInputContainer>
 
-              {/* Email Textarea */}
               <LabelInputContainer className="mb-1">
                 <Label htmlFor="emails" className="dark:text-farmacieGrey">
                   Enter Emails
@@ -156,7 +154,7 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange, onClose }) => {
                           <SelectContent className="rounded-xl">
                             <SelectGroup>
                               <SelectLabel>Status</SelectLabel>
-                              {status.map((s) => (
+                              {filterStatus.map((s) => (
                                 <SelectItem key={s.value} value={s.value}>
                                   {s.label}
                                 </SelectItem>

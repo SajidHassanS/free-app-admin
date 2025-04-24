@@ -72,3 +72,34 @@ export const deleteSupplier = async (uuid: any, token: string) => {
     return error;
   }
 };
+
+export const updateSecondaryNo = async (data: any, token: string) => {
+  try {
+    const res = await axios.patch(
+      `${baseURL}/supplier/phone?uuid=${data.uuid}`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deleteSecondaryPhone = async (uuid: any, token: string) => {
+  try {
+    const res = await axios.delete(`${baseURL}/supplier/phone?uuid=${uuid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
