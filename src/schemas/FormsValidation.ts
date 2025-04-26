@@ -157,7 +157,6 @@ const filterEmailSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   orderBy: z.string().optional(),
-  order: z.string().optional(),
 });
 
 const addPasswordSchema = z.object({

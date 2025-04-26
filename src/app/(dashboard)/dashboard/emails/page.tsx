@@ -40,8 +40,6 @@ import { filterStatus } from "@/constant/data";
 import { useSearchParams } from "next/navigation";
 import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
 
-// import BulkEmailUpdateModal from "@/components/Forms/forms-modal/emails/BulkEmailUpdateModal";
-
 const Emails = () => {
   const { token } = useContextConsumer();
   const searchParams = useSearchParams();
@@ -54,7 +52,12 @@ const Emails = () => {
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const duplicateSectionRef = useRef<HTMLDivElement>(null);
-  const [filterCriteria, setFilterCriteria] = useState({
+
+  const [filterCriteria, setFilterCriteria] = useState<{
+    status: string;
+    startDate?: string;
+    endDate?: string;
+  }>({
     status: "",
   });
 
@@ -81,20 +84,33 @@ const Emails = () => {
     });
   };
 
-  // const handleView = (email: any) => {
-  //   setIsUpdateEmailModalOpen(true);
-  //   setSelectedEmailToView(email);
-  // };
-
   const filteredEmails = useMemo(() => {
     if (!data || !data?.data) return [];
     return data?.data
-      .filter((emails: any) =>
-        emails.user?.username?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      .filter((emails: any) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          emails.user?.username?.toLowerCase().includes(searchLower) ||
+          emails.email?.toLowerCase().includes(searchLower)
+        );
+      })
       .filter((email: any) => {
         if (filterCriteria.status && email.status !== filterCriteria.status)
           return false;
+
+        if (filterCriteria.startDate) {
+          const emailCreatedAt = new Date(email.createdAt);
+          const startDate = new Date(filterCriteria.startDate);
+          if (emailCreatedAt < startDate) return false;
+        }
+
+        if (filterCriteria.endDate) {
+          const emailCreatedAt = new Date(email.createdAt);
+          const endDate = new Date(filterCriteria.endDate);
+          endDate.setHours(23, 59, 59, 999);
+          if (emailCreatedAt > endDate) return false;
+        }
+
         return true;
       });
   }, [data, searchQuery, filterCriteria]);
@@ -105,12 +121,6 @@ const Emails = () => {
       duplicateSectionRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 200);
   };
-
-  // const toggleEmailSelection = (uuid: string) => {
-  //   setSelectedUUIDs((prev) =>
-  //     prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
-  //   );
-  // };
 
   useEffect(() => {
     const scrollParam = searchParams.get("scroll");
@@ -161,18 +171,6 @@ const Emails = () => {
 
   const emailColumns = useMemo(
     () => [
-      // {
-      //   Header: "",
-      //   accessor: "select",
-      //   Cell: ({ row }: any) =>
-      //     row.original.status === "pending" && (
-      //       <input
-      //         type="checkbox"
-      //         checked={selectedUUIDs.includes(row.original.uuid)}
-      //         onChange={() => toggleEmailSelection(row.original.uuid)}
-      //       />
-      //     ),
-      // },
       {
         Header: "Supplier",
         accessor: "user.username",
@@ -232,25 +230,6 @@ const Emails = () => {
         Cell: ({ row }: any) =>
           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
       },
-      // {
-      //   Header: "",
-      //   accessor: "actions",
-      //   Cell: ({ row }: any) => (
-      //     <div className="flex items-center justify-end gap-2.5">
-      //       <Button
-      //         size="icon"
-      //         variant="outline"
-      //         className="h-7 w-7"
-      //         onClick={() => handleView(row.original)}
-      //       >
-      //         <Pencil className="h-3.5 w-3.5 text-gray-600" />
-      //       </Button>
-      //       <Button size="icon" variant="destructive" className="h-7 w-7">
-      //         <Trash2 className="h-3.5 w-3.5" />
-      //       </Button>
-      //     </div>
-      //   ),
-      // },
     ],
     []
   );
@@ -266,7 +245,6 @@ const Emails = () => {
               className="text-xs"
               size="sm"
               variant="outline"
-              // disabled={selectedUUIDs.length === 0}
               onClick={() => setIsBulkUpdateModalOpen(true)}
             >
               Bulk Update
@@ -398,31 +376,6 @@ const Emails = () => {
                       />
                     </LabelInputContainer>
 
-                    {/* Order */}
-                    <LabelInputContainer>
-                      <FormField
-                        control={form.control}
-                        name="order"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Select onValueChange={field.onChange}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Order" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="ASC">Ascending</SelectItem>
-                                  <SelectItem value="DESC">
-                                    Descending
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </LabelInputContainer>
                     <div className="flex gap-2">
                       <Button
                         className="lg:col-span-1 w-full text-white font-medium"
@@ -450,7 +403,7 @@ const Emails = () => {
                 <div className="flex justify-between items-center gap-2">
                   <div className="relative max-w-md lg:max-w-lg w-full">
                     <Input
-                      placeholder="Search email by username ..."
+                      placeholder="Search supplier by username or email"
                       type="text"
                       className="outline-none border py-5 border-primary rounded-full pl-12 w-full"
                       onChange={(e) => handleSearchChange(e.target.value)}

@@ -8,7 +8,6 @@ export const getEmailsList = async (token: string, filters: any) => {
   if (filters.startDate) queryParams.append("startDate", filters.startDate);
   if (filters.endDate) queryParams.append("endDate", filters.endDate);
   if (filters.orderBy) queryParams.append("orderBy", filters.orderBy);
-  if (filters.order) queryParams.append("order", filters.order);
 
   const res = await axios.get(`${baseURL}/email?${queryParams.toString()}`, {
     headers: {
