@@ -129,9 +129,9 @@ const addNewSupplierFormSchema = z
   });
 
 export const updateSupplierFormSchema = z.object({
-  bonus: z.string().min(1, "Bonus is required"),
-  category: z.string().min(1, "Category is required"),
-  active: z.string().min(1, "Status is required"),
+  bonus: z.string().optional(),
+  category: z.string().optional(),
+  active: z.string().optional(),
 });
 
 const addEmailRewardFormSchema = z.object({

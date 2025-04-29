@@ -321,7 +321,7 @@ const AddSupplierForm = ({
                         placeholder="••••••••"
                         type={showPassword ? "text" : "password"}
                         id="password"
-                        disabled={mode !== "add"}
+                        disabled={isViewMode}
                         className="outline-none focus:border-primary"
                         {...field}
                       />

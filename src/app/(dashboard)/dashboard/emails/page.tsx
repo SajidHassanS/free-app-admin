@@ -432,7 +432,7 @@ const Emails = () => {
             <DataTable
               columns={emailColumns}
               data={filteredEmails}
-              paginate={filteredEmails.length > 10}
+              paginate={filteredEmails.length > 100}
             />
           </div>
         )}

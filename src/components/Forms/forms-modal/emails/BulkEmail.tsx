@@ -128,7 +128,6 @@ const BulkEmailUpdateModal: React.FC<any> = ({ open, onClose }) => {
                                 <SelectItem
                                   key={status.value}
                                   value={status.value}
-                                  disabled={status.value === "bad"}
                                 >
                                   {status.label}
                                 </SelectItem>
