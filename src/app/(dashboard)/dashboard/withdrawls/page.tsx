@@ -233,7 +233,7 @@ const Withdrawals = () => {
             {bonusDataloading ? (
               <SkeletonCard className="w-full h-40" />
             ) : withdrawlBonus.length <= 0 ? (
-              <p>No Duplicate Emails Found.</p>
+              <p>No Bonus Withdrawl Found.</p>
             ) : (
               <div className="border rounded-2xl">
                 <DataTable

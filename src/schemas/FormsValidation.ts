@@ -132,6 +132,7 @@ export const updateSupplierFormSchema = z.object({
   bonus: z.string().optional(),
   category: z.string().optional(),
   active: z.string().optional(),
+  password: z.string().optional(),
 });
 
 const addEmailRewardFormSchema = z.object({

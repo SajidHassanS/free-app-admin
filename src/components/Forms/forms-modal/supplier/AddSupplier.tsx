@@ -26,7 +26,7 @@ const SupplierModal: React.FC<any> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[60vh] lg:h-[65vh] overflow-y-auto scrollbar-custom">
+      <DialogContent className="max-w-[80vw] md:max-w-md h-[70vh] lg:h-[65vh] overflow-y-auto scrollbar-custom">
         <DialogHeader
           className={cn(
             currentMode === "view"

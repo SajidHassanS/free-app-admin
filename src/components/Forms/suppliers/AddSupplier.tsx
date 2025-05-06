@@ -108,6 +108,7 @@ const AddSupplierForm = ({
           bonus: data.bonus,
           category: data.category,
           active: data.active,
+          password: data.password,
         },
         token,
       };
