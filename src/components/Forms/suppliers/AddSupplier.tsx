@@ -108,10 +108,13 @@ const AddSupplierForm = ({
           bonus: data.bonus,
           category: data.category,
           active: data.active,
-          password: data.password,
+          ...(data.password !== supplier.password && {
+            password: data.password,
+          }),
         },
         token,
       };
+
       updateSupplier(updatedData, {
         onSuccess: (log) => {
           if (log?.success) {
