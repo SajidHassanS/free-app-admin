@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Filter, Pencil, Search, Trash2, X } from "lucide-react";
+import { Filter, Search, X } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
@@ -141,6 +141,7 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "originalEmail.status",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             className={
@@ -156,6 +157,7 @@ const Emails = () => {
       {
         Header: "Duplicate File",
         accessor: "fileName",
+        disableFilter: true,
       },
       {
         Header: "Uploader",
@@ -164,6 +166,7 @@ const Emails = () => {
       {
         Header: "Original File",
         accessor: "originalEmail.fileName",
+        disableFilter: true,
       },
     ],
     []
@@ -187,6 +190,7 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "status",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={row.original.status === "bad" ? "secondary" : "success"}
@@ -203,6 +207,7 @@ const Emails = () => {
       {
         Header: "Screenshot",
         accessor: "emailScreenshot",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <a
             href={row.original.emailScreenshot}
@@ -221,12 +226,14 @@ const Emails = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
       },
       {
         Header: "Updated At",
         accessor: "updatedAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
       },

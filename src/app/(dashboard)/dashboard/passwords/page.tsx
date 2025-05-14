@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Edit, Pencil, Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
@@ -40,18 +40,21 @@ const Passwords = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
       },
       {
         Header: "Updated At",
         accessor: "updatedAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
       },
       {
         Header: "Status",
         accessor: "active",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge variant={row.original.active ? "success" : "destructive"}>
             {row.original.active ? "Active" : "Inactive"}

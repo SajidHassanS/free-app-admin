@@ -175,6 +175,7 @@ const Suppliers = () => {
       {
         Header: "Status",
         accessor: "active",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={row.original.active ? "success" : "destructive"}
@@ -191,6 +192,7 @@ const Suppliers = () => {
       {
         Header: "",
         accessor: "actions",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <div className="flex items-center justify-end gap-2.5">
             <Button

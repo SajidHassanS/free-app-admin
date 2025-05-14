@@ -71,6 +71,7 @@ const Withdrawals = () => {
     {
       Header: "Status",
       accessor: "status",
+      disableFilter: true,
       Cell: ({ row }: any) => {
         const status = row.original.status;
         let colorClass = "bg-gray-100 text-gray-700";
@@ -97,12 +98,14 @@ const Withdrawals = () => {
     {
       Header: "Created At",
       accessor: "createdAt",
+      disableFilter: true,
       Cell: ({ row }: any) =>
         format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
     },
     {
       Header: "",
       accessor: "actions",
+      disableFilter: true,
       Cell: ({ row }: any) => (
         <div className="flex items-center justify-end gap-2.5">
           <Button
@@ -132,6 +135,7 @@ const Withdrawals = () => {
       {
         Header: "Type",
         accessor: "bonus.type",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           row.original.bonus?.type?.charAt(0).toUpperCase() +
             row.original.bonus?.type?.slice(1) || "-",
@@ -143,6 +147,7 @@ const Withdrawals = () => {
       {
         Header: "Status",
         accessor: "status",
+        disableFilter: true,
         Cell: ({ row }: any) => {
           const status = row.original.status;
           let colorClass = "bg-gray-100 text-gray-700";
@@ -176,12 +181,14 @@ const Withdrawals = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
+        disableFilter: true,
         Cell: ({ row }: any) =>
           format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
       },
       {
         Header: "",
         accessor: "actions",
+        disableFilter: true,
         Cell: ({ row }: any) => (
           <div className="flex items-center justify-end gap-2.5">
             <Button

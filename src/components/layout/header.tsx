@@ -6,8 +6,6 @@ import { Breadcrumbs } from "../breadcrumbs";
 import { UserNav } from "./user-nav";
 
 export default function Header() {
-  const [isSearchOpen, setSearchOpen] = useState(false);
-
   return (
     <>
       <header className="flex h-16 shrink-0 items-center justify-between gap-2 bg-gray-100">

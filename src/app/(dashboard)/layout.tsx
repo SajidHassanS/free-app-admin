@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/layout/app-sidebar";
 import Header from "@/components/layout/header";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export const metadata = {
   title: "Free Earn",
@@ -24,6 +25,7 @@ const Layout: FC<{ children: ReactNode }> = async ({ children }) => {
             <main>{children}</main>
           </SidebarInset>
         </SidebarProvider>
+        <MobileBottomNav />
       </ContextProvider>
     </ProtectedRoutes>
   );
