@@ -27,7 +27,7 @@ const PasswordModal: React.FC<any> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[35vh] overflow-y-auto scrollbar-custom">
+      <DialogContent className="max-w-[80vw] md:max-w-md h-[45vh] overflow-y-auto scrollbar-custom">
         <DialogHeader
           className={cn(
             currentMode === "view"

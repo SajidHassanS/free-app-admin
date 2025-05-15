@@ -9,12 +9,17 @@ import {
   UserCircle,
   CalendarDays,
   Banknote,
+  PlusCircle,
 } from "lucide-react";
 import { useGetEmailStats } from "@/hooks/apis/useEmails";
 import { useGetWithdrawlStats } from "@/hooks/apis/useWithdrawl";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import AddFaqsModal from "@/components/Forms/forms-modal/emails/AddFaqs";
 
 export default function Home() {
   const { token } = useContextConsumer();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const { data: emailStatsData } = useGetEmailStats(token);
   const { data: withdrawlStatsData } = useGetWithdrawlStats(token);
@@ -27,6 +32,16 @@ export default function Home() {
       <Toaster position="top-center" reverseOrder={false} />
       <main className="relative min-h-[calc(100vh-4rem)] w-full bg-gray-50 dark:bg-zinc-900">
         <div className="max-w-6xl p-6 md:p-12 mx-auto space-y-10">
+          <div className="flex items-center justify-end w-full mb-4">
+            <Button
+              size="sm"
+              className="text-xs flex items-center gap-2 shadow-sm"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add FAQ
+            </Button>
+          </div>
           {emailStats && (
             <div className="dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-6 space-y-4 shadow-sm">
               <h2 className="text-xl font-bold text-primary mb-4">
@@ -136,6 +151,7 @@ export default function Home() {
           )}
         </div>
       </main>
+      <AddFaqsModal open={isModalOpen} onOpenChange={setIsModalOpen} />
     </>
   );
 }

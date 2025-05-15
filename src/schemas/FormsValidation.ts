@@ -161,11 +161,9 @@ const filterEmailSchema = z.object({
 });
 
 const addPasswordSchema = z.object({
-  passwords: z.array(
-    z.string().nonempty({
-      message: "Password is required",
-    })
-  ),
+  passwords: z
+    .string()
+    .nonempty({ message: "Please enter at least one password" }),
 });
 
 const bulkEmailUpdate = z.object({
@@ -189,6 +187,11 @@ const insertEmails = z.object({
   remarks: z.string().optional(),
 });
 
+const addFaq = z.object({
+  faq: z.string().nonempty({ message: "Enter FAQ" }),
+  ans: z.string().nonempty({ message: "Enter FAQ ans" }),
+});
+
 const filterSupplierSchema = z.object({
   active: z.string().optional(),
 });
@@ -209,4 +212,5 @@ export {
   withdrawlUpdate,
   insertEmails,
   filterSupplierSchema,
+  addFaq,
 };

@@ -145,12 +145,12 @@ const Emails = () => {
         Cell: ({ row }: any) => (
           <Badge
             className={
-              row.original.originalEmail.status === "good"
+              row.original.originalEmail?.status === "good"
                 ? "bg-green-100 text-green-700"
                 : "bg-yellow-100 text-yellow-700"
             }
           >
-            {row.original.originalEmail.status}
+            {row.original.originalEmail?.status}
           </Badge>
         ),
       },
@@ -182,6 +182,11 @@ const Emails = () => {
       {
         Header: "Email",
         accessor: "email",
+      },
+      {
+        Header: "Name",
+        accessor: "name",
+        Cell: ({ value }: any) => value || "-",
       },
       {
         Header: "Password",
