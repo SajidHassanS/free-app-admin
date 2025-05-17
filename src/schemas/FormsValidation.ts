@@ -192,6 +192,10 @@ const addFaq = z.object({
   ans: z.string().nonempty({ message: "Enter FAQ ans" }),
 });
 
+const addMarquee = z.object({
+  message: z.string().nonempty({ message: "Enter marquee" }),
+});
+
 const filterSupplierSchema = z.object({
   active: z.string().optional(),
 });
@@ -213,4 +217,5 @@ export {
   insertEmails,
   filterSupplierSchema,
   addFaq,
+  addMarquee,
 };

@@ -73,6 +73,19 @@ export const insertEmails = async (data: any, token: any) => {
   }
 };
 
+export const deleteBulkEmails = async (data: any, token: any) => {
+  try {
+    const res = await axios.post(`${baseURL}/email/bulk-delete`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
+
 export const getSupplierList = async (token: string) => {
   try {
     const res = await axios.get(`${baseURL}/supplier/simple-list`, {

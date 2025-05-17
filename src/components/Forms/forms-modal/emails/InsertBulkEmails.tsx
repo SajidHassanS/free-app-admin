@@ -30,11 +30,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetSupplierList, useInsertEmails } from "@/hooks/apis/useEmails";
+import {
+  useDeleteBulkEmails,
+  useGetSupplierList,
+  useInsertEmails,
+} from "@/hooks/apis/useEmails";
 import { useContextConsumer } from "@/context/Context";
 import { Textarea } from "@/components/ui/textarea";
 
-const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
+const InsertEmailsModals: React.FC<any> = ({
+  open,
+  onOpenChange,
+  deleteBulk,
+}) => {
   const { token } = useContextConsumer();
 
   const form = useForm<z.infer<typeof insertEmails>>({
@@ -49,22 +57,41 @@ const InsertEmailsModals: React.FC<any> = ({ open, onOpenChange }) => {
 
   const { data: list } = useGetSupplierList(token);
   const { mutate: insert, isPending: inserting } = useInsertEmails();
+  const { mutate: deleteBulkMails, isPending: deleting } =
+    useDeleteBulkEmails();
 
   const onSubmit = (formData: z.infer<typeof insertEmails>) => {
-    insert(
-      {
-        data: formData,
-        token: token,
-      },
-      {
-        onSuccess: (res) => {
-          if (res?.success) {
-            // form.reset();
-            onOpenChange();
-          }
+    if (deleteBulk) {
+      deleteBulkMails(
+        {
+          data: formData,
+          token: token,
         },
-      }
-    );
+        {
+          onSuccess: (res) => {
+            if (res?.success) {
+              // form.reset();
+              onOpenChange();
+            }
+          },
+        }
+      );
+    } else {
+      insert(
+        {
+          data: formData,
+          token: token,
+        },
+        {
+          onSuccess: (res) => {
+            if (res?.success) {
+              // form.reset();
+              onOpenChange();
+            }
+          },
+        }
+      );
+    }
   };
 
   return (

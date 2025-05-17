@@ -40,15 +40,33 @@ import { filterStatus } from "@/constant/data";
 import { useSearchParams } from "next/navigation";
 import InsertEmailsModals from "@/components/Forms/forms-modal/emails/InsertBulkEmails";
 
+function groupEmailsByKey<T>(data: T[], key: keyof T): T[] {
+  const groupedMap = new Map<string, { item: T; count: number }>();
+
+  data?.forEach((item) => {
+    const keyVal = item[key];
+    const groupKey =
+      typeof keyVal === "string" ? keyVal : JSON.stringify(keyVal);
+    if (!groupedMap.has(groupKey)) {
+      groupedMap.set(groupKey, { item, count: 1 });
+    } else {
+      groupedMap.get(groupKey)!.count += 1;
+    }
+  });
+
+  return Array.from(groupedMap.values()).map((entry) => ({
+    ...entry.item,
+    groupCount: entry.count,
+  }));
+}
+
 const Emails = () => {
   const { token } = useContextConsumer();
   const searchParams = useSearchParams();
-  const [isUpdateEmailModalOpen, setIsUpdateEmailModalOpen] = useState(false);
   const [showDuplicateEmails, setShowDuplicateEmails] = useState(false);
-  const [selectedEmailToView, setSelectedEmailToView] = useState({});
-  // const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
   const [isInsertEmailsModalOpen, setIsInsertEmailsModalOpen] = useState(false);
+  const [isDeleteEmailsModalOpen, setIsDeleteEmailsModalOpen] = useState(false);
   const [showSearch, setShowSearch] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const duplicateSectionRef = useRef<HTMLDivElement>(null);
@@ -71,6 +89,10 @@ const Emails = () => {
   const { data, isLoading } = useGetAllEmails(token, filterCriteria);
   const { data: duplicateEmailsData, isLoading: duplicateLoading } =
     useGetDuplicateEmails(token);
+
+  const groupedEmails = useMemo(() => {
+    return groupEmailsByKey(data?.data, "emailScreenshot");
+  }, [data?.data]);
 
   const duplicateEmails = duplicateEmailsData?.data || [];
 
@@ -268,6 +290,13 @@ const Emails = () => {
             >
               Bulk Insert Emails
             </Button>
+            <Button
+              className="text-xs"
+              size="sm"
+              onClick={() => setIsDeleteEmailsModalOpen(true)}
+            >
+              Bulk Delete Emails
+            </Button>
             <Button className="text-xs" size="sm" onClick={handleShowDuplicate}>
               Show Duplicate Email
             </Button>
@@ -443,7 +472,7 @@ const Emails = () => {
           <div className="border rounded-2xl">
             <DataTable
               columns={emailColumns}
-              data={filteredEmails}
+              data={groupEmailsByKey(filteredEmails, "emailScreenshot")}
               paginate={filteredEmails.length > 100}
             />
           </div>
@@ -478,6 +507,11 @@ const Emails = () => {
       <InsertEmailsModals
         open={isInsertEmailsModalOpen}
         onOpenChange={setIsInsertEmailsModalOpen}
+      />
+      <InsertEmailsModals
+        open={isDeleteEmailsModalOpen}
+        onOpenChange={setIsDeleteEmailsModalOpen}
+        deleteBulk
       />
     </>
   );
