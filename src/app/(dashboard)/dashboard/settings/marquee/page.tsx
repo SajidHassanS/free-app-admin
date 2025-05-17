@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import TabLayout from "@/components/layout/TabLayout";
 import { useContextConsumer } from "@/context/Context";
-import MarqueeItem from "@/components/marquee/MarqueeItem";
 import { SweetAlert } from "@/components/alerts/SweetAlert";
 import MarqueeModal from "@/components/Forms/forms-modal/marquee/AddMarquee";
 import { DndProvider } from "react-dnd";
@@ -16,8 +15,6 @@ import {
   useUpdateMarquee,
 } from "@/hooks/apis/useMarquee";
 import DraggableMarqueeItem from "@/components/marquee/DraggableMarqueeItem";
-
-const ItemType = { MARQUEE: "marquee" };
 
 export default function Maquee() {
   const { token } = useContextConsumer();

@@ -35,6 +35,7 @@ import {
   useWithdrawlBonusUpdate,
   useWithdrawlUpdate,
 } from "@/hooks/apis/useWithdrawl";
+import { Input } from "@/components/ui/input";
 
 const WithdrawlUpdateModal: React.FC<any> = ({
   open,
@@ -48,46 +49,45 @@ const WithdrawlUpdateModal: React.FC<any> = ({
     resolver: zodResolver(withdrawlUpdate),
     defaultValues: {
       action: "",
+      remarks: "",
     },
   });
+  const selectedAction = form.watch("action");
 
   const { mutate: updateWithdrawl, isPending: updating } = useWithdrawlUpdate();
   const { mutate: updateBonusWithdrawl, isPending: bonusUpdating } =
     useWithdrawlBonusUpdate();
 
   const onSubmit = (data: z.infer<typeof withdrawlUpdate>) => {
+    const formData = new FormData();
+    formData.append("withdrawalUuid", withdrawl.uuid);
+    formData.append("action", data.action);
+    if (data.remarks) {
+      formData.append("remarks", data.remarks);
+    }
+    if (data.action === "approve" && data.paymentScreenshot) {
+      formData.append("paymentScreenshot", data.paymentScreenshot);
+    }
+
     const payload = {
-      data: {
-        withdrawalUuid: withdrawl.uuid,
-        action: data.action,
-      },
+      data: formData,
       token,
     };
 
-    if (bonus) {
-      updateBonusWithdrawl(payload, {
-        onSuccess: (res) => {
-          if (res?.success) {
-            form.reset();
-            onClose();
-          }
-        },
-      });
-    } else {
-      updateWithdrawl(payload, {
-        onSuccess: (res) => {
-          if (res?.success) {
-            form.reset();
-            onClose();
-          }
-        },
-      });
-    }
+    const handler = bonus ? updateBonusWithdrawl : updateWithdrawl;
+    handler(payload, {
+      onSuccess: (res) => {
+        if (res?.success) {
+          form.reset();
+          onClose();
+        }
+      },
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[40vh] overflow-y-auto scrollbar-custom">
+      <DialogContent className="max-w-[80vw] md:max-w-md h-[50vh] overflow-y-auto scrollbar-custom">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-primary text-xl font-bold">
             Handle Withdrawl
@@ -139,6 +139,60 @@ const WithdrawlUpdateModal: React.FC<any> = ({
                   )}
                 />
               </LabelInputContainer>
+              <LabelInputContainer>
+                <Label htmlFor="remarks">Remarks</Label>
+                <FormField
+                  control={form.control}
+                  name="remarks"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder={
+                            selectedAction === "approve"
+                              ? "Enter remarks (required)"
+                              : "Enter remarks (optional)"
+                          }
+                          type="text"
+                          id="remarks"
+                          className="outline-none focus:border-primary"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </LabelInputContainer>
+              {selectedAction === "approve" && (
+                <LabelInputContainer className="my-1.5">
+                  <Label
+                    htmlFor="paymentScreenshot"
+                    className="dark:text-farmacieGrey"
+                  >
+                    Upload Proof Image
+                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="paymentScreenshot"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              field.onChange(e.target.files?.[0])
+                            }
+                            className="w-full rounded-md border border-estateLightGray dark:bg-background dark:text-white outline-none focus:border-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+              )}
             </div>
             <Button
               className="w-full text-white font-medium mt-4"

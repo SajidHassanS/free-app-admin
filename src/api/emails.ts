@@ -60,6 +60,24 @@ export const emailBulkUpdate = async (data: any, token: string) => {
   }
 };
 
+export const emailBulkUpdateUuids = async (data: any, token: string) => {
+  try {
+    const res = await axios.patch(
+      `${baseURL}/email/bulk-update-by-uuids`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const insertEmails = async (data: any, token: any) => {
   try {
     const res = await axios.post(`${baseURL}/email/bulk-insert`, data, {

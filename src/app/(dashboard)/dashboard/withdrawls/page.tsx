@@ -106,18 +106,24 @@ const Withdrawals = () => {
       Header: "",
       accessor: "actions",
       disableFilter: true,
-      Cell: ({ row }: any) => (
-        <div className="flex items-center justify-end gap-2.5">
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-7 w-7"
-            onClick={() => handleView(row.original)}
-          >
-            <Pencil className="h-3.5 w-3.5 text-gray-600" />
-          </Button>
-        </div>
-      ),
+      Cell: ({ row }: any) => {
+        const status = row.original.status;
+        if (status === "approved" || status === "rejected") {
+          return null;
+        }
+        return (
+          <div className="flex items-center justify-end gap-2.5">
+            <Button
+              size="icon"
+              variant="outline"
+              className="h-7 w-7"
+              onClick={() => handleView(row.original)}
+            >
+              <Pencil className="h-3.5 w-3.5 text-gray-600" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 

@@ -67,10 +67,7 @@ const Suppliers = () => {
     },
   });
 
-  const { data, refetch, isLoading } = useGetAllSuppliers(
-    token,
-    filterCriteria
-  );
+  const { data, isLoading } = useGetAllSuppliers(token, filterCriteria);
   const { mutate: deleteSupplier, isPending: deletingSupplier } =
     useDeleteSupplier(token);
 
@@ -110,6 +107,8 @@ const Suppliers = () => {
         return true;
       });
   }, [data, searchQuery, filterCriteria]);
+
+  console.log(filteredSuppliers, "filteredSuppliers");
 
   const handleView = (supplier: any) => {
     setIsUpdateSupplierModalOpen(true);
@@ -167,8 +166,8 @@ const Suppliers = () => {
         Cell: ({ value }: any) => value || "-",
       },
       {
-        Header: "Bonus",
-        accessor: "bonus",
+        Header: "Available Balance",
+        accessor: "availableBalance",
         Cell: ({ value }: any) =>
           value !== null && value !== undefined ? value : "-",
       },

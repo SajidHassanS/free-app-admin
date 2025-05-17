@@ -273,7 +273,7 @@ export default function ProfileForm() {
                         )}
                       >
                         <SelectValue
-                          placeholder={apiUser.data.role || "Select Role"}
+                          placeholder={apiUser?.data?.role || "Select Role"}
                         />
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">

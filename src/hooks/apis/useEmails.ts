@@ -1,6 +1,7 @@
 import {
   deleteBulkEmails,
   emailBulkUpdate,
+  emailBulkUpdateUuids,
   getDuplicateEmailsList,
   getEmailsList,
   getEmailsStats,
@@ -77,6 +78,25 @@ export const useBulkEmailUpdate = () => {
   return useMutation({
     mutationFn: ({ data, token }: { data: any; token: string }) =>
       emailBulkUpdate(data, token),
+    onSuccess: (data: any, variables: { data: any; token: string }) => {
+      if (data?.success) {
+        toast.success(data.message);
+        queryClient.invalidateQueries(["allEmails", variables.token] as any);
+      } else {
+        toast.error(data?.message);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
+};
+
+export const useBulkEmailUpdateUuid = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ data, token }: { data: any; token: string }) =>
+      emailBulkUpdateUuids(data, token),
     onSuccess: (data: any, variables: { data: any; token: string }) => {
       if (data?.success) {
         toast.success(data.message);

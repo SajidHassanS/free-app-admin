@@ -2,9 +2,9 @@ import axios from "axios";
 
 // export const baseURL =
 //   "https://bw1ooodjzb.execute-api.eu-north-1.amazonaws.com/admin/api";
-export const baseURL =
-  "https://ae0b-2402-e000-45a-70df-2c-7974-4ef5-6f65.ngrok-free.app/api";
-// export const baseURL = "http://192.168.200.46:7001/api";
+// export const baseURL =
+//   "https://ae0b-2402-e000-45a-70df-2c-7974-4ef5-6f65.ngrok-free.app/api";
+export const baseURL = "http://192.168.200.46:7001/api";
 
 export const createAccount = async (data: createAccountPayload) => {
   try {

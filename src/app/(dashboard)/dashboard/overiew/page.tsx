@@ -15,12 +15,14 @@ import { useGetEmailStats } from "@/hooks/apis/useEmails";
 import { useGetWithdrawlStats } from "@/hooks/apis/useWithdrawl";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import AddFaqsModal from "@/components/Forms/forms-modal/emails/AddFaqs";
 import MarqueeModal from "@/components/Forms/forms-modal/marquee/AddMarquee";
+import FAqModal from "@/components/Forms/forms-modal/faq/AddFAq";
+import InsModal from "@/components/Forms/forms-modal/instructions/AddIns";
 
 export default function Home() {
   const { token } = useContextConsumer();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isInsModalOpen, setIsInsModalOpen] = useState<boolean>(false);
   const [isAddMarqueeModalOpen, setIsAddMarqueeModalOpen] =
     useState<boolean>(false);
 
@@ -51,6 +53,14 @@ export default function Home() {
             >
               <PlusCircle className="w-4 h-4" />
               Add Marquee
+            </Button>
+            <Button
+              size="sm"
+              className="text-xs flex items-center gap-2 shadow-sm"
+              onClick={() => setIsInsModalOpen(true)}
+            >
+              <PlusCircle className="w-4 h-4" />
+              Add Instruction
             </Button>
           </div>
           {emailStats && (
@@ -162,7 +172,12 @@ export default function Home() {
           )}
         </div>
       </main>
-      <AddFaqsModal open={isModalOpen} onOpenChange={setIsModalOpen} />
+      <FAqModal open={isModalOpen} onOpenChange={setIsModalOpen} mode="add" />
+      <InsModal
+        open={isInsModalOpen}
+        onOpenChange={setIsInsModalOpen}
+        mode="add"
+      />
       <MarqueeModal
         open={isAddMarqueeModalOpen}
         onOpenChange={setIsAddMarqueeModalOpen}

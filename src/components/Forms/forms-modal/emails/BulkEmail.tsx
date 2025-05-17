@@ -31,11 +31,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useBulkEmailUpdate } from "@/hooks/apis/useEmails";
+import {
+  useBulkEmailUpdate,
+  useBulkEmailUpdateUuid,
+} from "@/hooks/apis/useEmails";
 import { useContextConsumer } from "@/context/Context";
 import { Textarea } from "@/components/ui/textarea";
 
-const BulkEmailUpdateModal: React.FC<any> = ({ open, onClose }) => {
+interface BulkEmailUpdateModalProps {
+  open: boolean;
+  onClose: () => void;
+  uuids?: string[];
+}
+
+const BulkEmailUpdateModal: React.FC<BulkEmailUpdateModalProps> = ({
+  open,
+  onClose,
+  uuids = [],
+}) => {
   const { token } = useContextConsumer();
 
   const form = useForm<z.infer<typeof bulkEmailUpdate>>({
@@ -47,28 +60,47 @@ const BulkEmailUpdateModal: React.FC<any> = ({ open, onClose }) => {
     },
   });
 
-  const { mutate: bulkEmail, isPending: updating } = useBulkEmailUpdate();
+  const { mutate: bulkEmaisUpdate, isPending: updating } = useBulkEmailUpdate();
+  const { mutate: bulkUpdateByUuids, isPending: updatingByUuids } =
+    useBulkEmailUpdateUuid();
+
+  const isUuidMode = uuids.length > 0;
 
   const onSubmit = (formData: z.infer<typeof bulkEmailUpdate>) => {
-    bulkEmail(
-      {
-        data: formData,
-        token: token,
-      },
-      {
-        onSuccess: (res) => {
-          if (res?.success) {
-            form.reset();
-            onClose();
-          }
-        },
+    if (!isUuidMode && !formData.emails?.trim()) {
+      form.setError("emails", {
+        message: "Please enter at least one email",
+      });
+      return;
+    }
+
+    const payload = {
+      data: isUuidMode ? { uuids, ...formData } : formData,
+      token,
+    };
+
+    const onSuccessHandler = (res: any) => {
+      if (res?.success) {
+        form.reset();
+        onClose();
       }
-    );
+    };
+
+    if (isUuidMode) {
+      bulkUpdateByUuids(payload, { onSuccess: onSuccessHandler });
+    } else {
+      bulkEmaisUpdate(payload, { onSuccess: onSuccessHandler });
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[60vh] lg:h-[55vh] overflow-y-auto scrollbar-custom">
+      <DialogContent
+        className={cn(
+          "max-w-[80vw] md:max-w-md h-[60vh] lg:h-[55vh] overflow-y-auto scrollbar-custom",
+          isUuidMode && "lg:h-[40vh]"
+        )}
+      >
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-primary text-xl font-bold">
             Bulk Email Update
@@ -77,28 +109,30 @@ const BulkEmailUpdateModal: React.FC<any> = ({ open, onClose }) => {
         <Form {...form}>
           <form className="2" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-3 mb-4">
-              <LabelInputContainer className="mb-1">
-                <Label htmlFor="emails" className="dark:text-farmacieGrey">
-                  Enter Emails
-                </Label>
-                <FormField
-                  control={form.control}
-                  name="emails"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          rows={5}
-                          placeholder="Paste multiple emails here (comma or newline separated)"
-                          className="w-full p-3 rounded-md border border-estateLightGray dark:bg-background dark:text-white outline-none focus:border-primary"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </LabelInputContainer>
+              {!isUuidMode && (
+                <LabelInputContainer className="mb-1">
+                  <Label htmlFor="emails" className="dark:text-farmacieGrey">
+                    Enter Emails
+                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="emails"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            rows={5}
+                            placeholder="Paste multiple emails here (comma or newline separated)"
+                            className="w-full p-3 rounded-md border border-estateLightGray dark:bg-background dark:text-white outline-none focus:border-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+              )}
               <LabelInputContainer className="mb-1">
                 <Label htmlFor="status" className="dark:text-farmacieGrey">
                   Status
@@ -165,7 +199,7 @@ const BulkEmailUpdateModal: React.FC<any> = ({ open, onClose }) => {
             </div>
             <Button
               className="w-full text-white font-medium mt-4"
-              disabled={updating}
+              disabled={updating || updatingByUuids}
               type="submit"
             >
               Submit

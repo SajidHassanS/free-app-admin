@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useContextConsumer } from "@/context/Context";
 import { Button } from "@/components/ui/button";
-import { Filter, Search, X } from "lucide-react";
+import { Filter, Pencil, Search, X } from "lucide-react";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Toaster } from "react-hot-toast";
@@ -64,6 +64,7 @@ const Emails = () => {
   const { token } = useContextConsumer();
   const searchParams = useSearchParams();
   const [showDuplicateEmails, setShowDuplicateEmails] = useState(false);
+  const [selectedUUIDs, setSelectedUUIDs] = useState<string[]>([]);
   const [isBulkUpdateModalOpen, setIsBulkUpdateModalOpen] = useState(false);
   const [isInsertEmailsModalOpen, setIsInsertEmailsModalOpen] = useState(false);
   const [isDeleteEmailsModalOpen, setIsDeleteEmailsModalOpen] = useState(false);
@@ -89,10 +90,6 @@ const Emails = () => {
   const { data, isLoading } = useGetAllEmails(token, filterCriteria);
   const { data: duplicateEmailsData, isLoading: duplicateLoading } =
     useGetDuplicateEmails(token);
-
-  const groupedEmails = useMemo(() => {
-    return groupEmailsByKey(data?.data, "emailScreenshot");
-  }, [data?.data]);
 
   const duplicateEmails = duplicateEmailsData?.data || [];
 
@@ -137,13 +134,6 @@ const Emails = () => {
       });
   }, [data, searchQuery, filterCriteria]);
 
-  const handleShowDuplicate = () => {
-    setShowDuplicateEmails(true);
-    setTimeout(() => {
-      duplicateSectionRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 200);
-  };
-
   useEffect(() => {
     const scrollParam = searchParams.get("scroll");
     if (scrollParam === "duplicate") {
@@ -153,6 +143,12 @@ const Emails = () => {
       }, 200);
     }
   }, [searchParams]);
+
+  const toggleEmailSelection = (uuid: string) => {
+    setSelectedUUIDs((prev) =>
+      prev.includes(uuid) ? prev.filter((id) => id !== uuid) : [...prev, uuid]
+    );
+  };
 
   const duplicateColumns = useMemo(
     () => [
@@ -196,6 +192,18 @@ const Emails = () => {
 
   const emailColumns = useMemo(
     () => [
+      {
+        Header: "",
+        accessor: "select",
+        Cell: ({ row }: any) =>
+          row.original.status === "pending" && (
+            <input
+              type="checkbox"
+              checked={selectedUUIDs.includes(row.original.uuid)}
+              onChange={() => toggleEmailSelection(row.original.uuid)}
+            />
+          ),
+      },
       {
         Header: "Supplier",
         accessor: "user.username",
@@ -265,7 +273,7 @@ const Emails = () => {
           format(new Date(row.original.updatedAt), "dd MMM yyyy, hh:mm a"),
       },
     ],
-    []
+    [selectedUUIDs]
   );
 
   return (
@@ -279,6 +287,7 @@ const Emails = () => {
               className="text-xs"
               size="sm"
               variant="outline"
+              // disabled={selectedUUIDs.length === 0}
               onClick={() => setIsBulkUpdateModalOpen(true)}
             >
               Bulk Update
@@ -296,9 +305,6 @@ const Emails = () => {
               onClick={() => setIsDeleteEmailsModalOpen(true)}
             >
               Bulk Delete Emails
-            </Button>
-            <Button className="text-xs" size="sm" onClick={handleShowDuplicate}>
-              Show Duplicate Email
             </Button>
           </div>
         </div>
@@ -472,7 +478,7 @@ const Emails = () => {
           <div className="border rounded-2xl">
             <DataTable
               columns={emailColumns}
-              data={groupEmailsByKey(filteredEmails, "emailScreenshot")}
+              data={filteredEmails}
               paginate={filteredEmails.length > 100}
             />
           </div>
@@ -501,8 +507,8 @@ const Emails = () => {
       </div>
       <BulkEmailUpdateModal
         open={isBulkUpdateModalOpen}
-        onClose={setIsBulkUpdateModalOpen}
-        // uuids={selectedUUIDs}
+        onClose={() => setIsBulkUpdateModalOpen(false)}
+        uuids={selectedUUIDs}
       />
       <InsertEmailsModals
         open={isInsertEmailsModalOpen}

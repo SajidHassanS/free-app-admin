@@ -1,4 +1,3 @@
-import { passwordRegex } from "@/lib/helpers";
 import * as z from "zod";
 
 const createAccountFormSchema = z
@@ -167,18 +166,32 @@ const addPasswordSchema = z.object({
 });
 
 const bulkEmailUpdate = z.object({
-  emails: z.string().nonempty({ message: "Please enter at least one email" }),
+  emails: z.string().optional(),
   status: z.string().nonempty({
     message: "Select Status",
   }),
   remarks: z.string().optional(),
 });
 
-const withdrawlUpdate = z.object({
-  action: z.string().nonempty({
-    message: "Select Action",
-  }),
-});
+const withdrawlUpdate = z
+  .object({
+    action: z.string().nonempty({ message: "Select Action" }),
+    remarks: z.string().optional(),
+    paymentScreenshot: z.any().optional(),
+  })
+  .refine(
+    (data) =>
+      data.action !== "approve" ||
+      (data.paymentScreenshot && data.paymentScreenshot instanceof File),
+    {
+      message: "Please upload payment screenshot when approving.",
+      path: ["paymentScreenshot"],
+    }
+  )
+  .refine((data) => data.action !== "approve" || !!data.remarks?.trim(), {
+    message: "Remarks are required when approving.",
+    path: ["remarks"],
+  });
 
 const insertEmails = z.object({
   userUuid: z.string().nonempty({ message: "Please select a supplier" }),
@@ -188,8 +201,13 @@ const insertEmails = z.object({
 });
 
 const addFaq = z.object({
-  faq: z.string().nonempty({ message: "Enter FAQ" }),
-  ans: z.string().nonempty({ message: "Enter FAQ ans" }),
+  question: z.string().nonempty({ message: "Enter FAQ" }),
+  answer: z.string().nonempty({ message: "Enter FAQ ans" }),
+});
+
+const addInsSchema = z.object({
+  title: z.string().nonempty({ message: "Enter title" }),
+  description: z.string().nonempty({ message: "Enter description" }),
 });
 
 const addMarquee = z.object({
@@ -218,4 +236,5 @@ export {
   filterSupplierSchema,
   addFaq,
   addMarquee,
+  addInsSchema,
 };
