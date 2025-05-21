@@ -1,5 +1,8 @@
 "use client";
 
+import { useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { Copy } from "lucide-react";
 import { useContextConsumer } from "@/context/Context";
 import { Toaster } from "react-hot-toast";
 import { SkeletonCard } from "@/components/Loaders/SkeletonLoader";
@@ -13,7 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import WithdrawlUpdateModal from "@/components/Forms/forms-modal/withdrawl/UpdateWithdrawl";
-import { useMemo, useRef, useState } from "react";
 
 const Withdrawals = () => {
   const { token } = useContextConsumer();
@@ -49,6 +51,15 @@ const Withdrawals = () => {
     }, 200);
   };
 
+  const handleCopy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy!");
+    }
+  };
+
   const columns = [
     {
       Header: "User Title",
@@ -71,7 +82,6 @@ const Withdrawals = () => {
     {
       Header: "Status",
       accessor: "status",
-      disableFilter: true,
       Cell: ({ row }: any) => {
         const status = row.original.status;
         let colorClass = "bg-gray-100 text-gray-700";
@@ -86,14 +96,46 @@ const Withdrawals = () => {
     {
       Header: "Account Number",
       accessor: "withdrawalMethod.accountNumber",
-      Cell: ({ row }: any) =>
-        row.original.withdrawalMethod?.accountNumber || "-",
+      Cell: ({ row }: any) => {
+        const value = row.original.withdrawalMethod?.accountNumber || "-";
+        return value === "-" ? (
+          value
+        ) : (
+          <div className="flex items-center gap-2">
+            <span>{value}</span>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-5 w-5"
+              onClick={() => handleCopy(value)}
+            >
+              <Copy className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
+        );
+      },
     },
     {
       Header: "Account Title",
       accessor: "withdrawalMethod.accountTitle",
-      Cell: ({ row }: any) =>
-        row.original.withdrawalMethod?.accountTitle || "-",
+      Cell: ({ row }: any) => {
+        const value = row.original.withdrawalMethod?.accountTitle || "-";
+        return value === "-" ? (
+          value
+        ) : (
+          <div className="flex items-center gap-2">
+            <span>{value}</span>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-5 w-5"
+              onClick={() => handleCopy(value)}
+            >
+              <Copy className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </div>
+        );
+      },
     },
     {
       Header: "Created At",
@@ -153,7 +195,6 @@ const Withdrawals = () => {
       {
         Header: "Status",
         accessor: "status",
-        disableFilter: true,
         Cell: ({ row }: any) => {
           const status = row.original.status;
           let colorClass = "bg-gray-100 text-gray-700";

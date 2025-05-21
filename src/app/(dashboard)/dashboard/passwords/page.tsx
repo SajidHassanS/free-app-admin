@@ -54,7 +54,6 @@ const Passwords = () => {
       {
         Header: "Status",
         accessor: "active",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge variant={row.original.active ? "success" : "destructive"}>
             {row.original.active ? "Active" : "Inactive"}

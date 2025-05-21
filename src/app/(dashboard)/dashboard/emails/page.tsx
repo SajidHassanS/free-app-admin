@@ -159,7 +159,6 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "originalEmail.status",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             className={
@@ -225,7 +224,6 @@ const Emails = () => {
       {
         Header: "Status",
         accessor: "status",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={row.original.status === "bad" ? "secondary" : "success"}

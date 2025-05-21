@@ -174,7 +174,6 @@ const Suppliers = () => {
       {
         Header: "Status",
         accessor: "active",
-        disableFilter: true,
         Cell: ({ row }: any) => (
           <Badge
             variant={row.original.active ? "success" : "destructive"}
