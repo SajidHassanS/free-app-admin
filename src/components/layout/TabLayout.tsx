@@ -2,7 +2,15 @@
 
 import SidebarNav from "@/components/ProfileSetting/sidebar-tab";
 import { Separator } from "@/components/ui/separator";
-import { CircleHelp, Cog, List, Settings, User, Wrench } from "lucide-react";
+import {
+  CircleHelp,
+  Cog,
+  Link2,
+  List,
+  Settings,
+  User,
+  Wrench,
+} from "lucide-react";
 import { Toaster } from "react-hot-toast";
 
 export default function TabLayout({ children }: { children: React.ReactNode }) {
@@ -57,6 +65,11 @@ const sidebarNavItems = [
     title: "Instruction",
     icon: <Wrench size={18} />,
     href: "/dashboard/settings/instructions",
+  },
+  {
+    title: "Domains",
+    icon: <Link2 size={18} />,
+    href: "/dashboard/settings/domains",
   },
   {
     title: "Account",

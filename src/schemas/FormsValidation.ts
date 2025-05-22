@@ -214,6 +214,10 @@ const addMarquee = z.object({
   message: z.string().nonempty({ message: "Enter marquee" }),
 });
 
+const addDomain = z.object({
+  domain: z.string().nonempty({ message: "Enter domain" }),
+});
+
 const filterSupplierSchema = z.object({
   active: z.string().optional(),
 });
@@ -237,4 +241,5 @@ export {
   addFaq,
   addMarquee,
   addInsSchema,
+  addDomain,
 };

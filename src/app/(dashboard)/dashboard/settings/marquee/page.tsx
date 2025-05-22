@@ -15,11 +15,15 @@ import {
   useUpdateMarquee,
 } from "@/hooks/apis/useMarquee";
 import DraggableMarqueeItem from "@/components/marquee/DraggableMarqueeItem";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
 
 export default function Maquee() {
   const { token } = useContextConsumer();
   const [marquees, setMarquees] = useState<any[]>([]);
   const [selectedMarqueToView, setSelectedMarqueToView] = useState({});
+  const [isAddMarqueeModalOpen, setIsAddMarqueeModalOpen] =
+    useState<boolean>(false);
   const [isEditMarqueeModalOpen, setIsEditMarqueeModalOpen] =
     useState<boolean>(false);
 
@@ -91,9 +95,21 @@ export default function Maquee() {
       <DndProvider backend={HTML5Backend}>
         <TabLayout>
           <div className="p-6 space-y-3">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Marquee Messages
-            </h2>
+            <div className="flex flex-col lg:flex-row justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">
+                Marquee Messages
+              </h2>
+              <Button
+                size="sm"
+                className="text-xs flex items-center gap-2 shadow-sm ml-6"
+                onClick={() => setIsAddMarqueeModalOpen(true)}
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add Marquee
+              </Button>
+            </div>
+            {data?.data.length <= 0 && <p>No Marquee Available</p>}
+
             {isLoading ? (
               <p>Loading...</p>
             ) : (
@@ -119,6 +135,11 @@ export default function Maquee() {
           </div>
         </TabLayout>
       </DndProvider>
+      <MarqueeModal
+        open={isAddMarqueeModalOpen}
+        onOpenChange={setIsAddMarqueeModalOpen}
+        mode="add"
+      />
       <MarqueeModal
         open={isEditMarqueeModalOpen}
         onOpenChange={setIsEditMarqueeModalOpen}

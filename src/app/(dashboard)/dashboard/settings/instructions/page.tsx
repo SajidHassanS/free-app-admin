@@ -17,12 +17,15 @@ import {
   useUpdateIns,
 } from "@/hooks/apis/useInts";
 import { reorderIns } from "@/api/inst";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function InstructionPage() {
   const { token } = useContextConsumer();
   const [instructions, setInstructions] = useState<any[]>([]);
   const [selectedInstruction, setSelectedInstruction] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddInseModalOpen, setIsAddInseModalOpen] = useState<boolean>(false);
 
   const { data, isLoading } = useGetInsList(token);
   const { mutate: updateInstruction } = useUpdateIns();
@@ -86,9 +89,23 @@ export default function InstructionPage() {
       <DndProvider backend={HTML5Backend}>
         <TabLayout>
           <div className="p-6 space-y-3">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Instructions
-            </h2>
+            <div className="flex flex-col lg:flex-row items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {" "}
+                Instructions
+              </h2>
+              <Button
+                size="sm"
+                className="text-xs flex items-center gap-2 shadow-sm"
+                onClick={() => setIsAddInseModalOpen(true)}
+              >
+                <PlusCircle className="w-4 h-4" />
+                Add Instruction
+              </Button>
+            </div>
+
+            {instructions?.length <= 0 && <p>No Instruction Available</p>}
+
             {isLoading ? (
               <p>Loading...</p>
             ) : (
@@ -112,7 +129,11 @@ export default function InstructionPage() {
           </div>
         </TabLayout>
       </DndProvider>
-
+      <InsModal
+        open={isAddInseModalOpen}
+        onOpenChange={setIsAddInseModalOpen}
+        mode="add"
+      />
       <InsModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
