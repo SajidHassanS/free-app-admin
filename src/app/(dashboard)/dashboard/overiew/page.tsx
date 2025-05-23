@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-      <main className="relative min-h-[calc(100vh-4rem)] w-full bg-gray-50 dark:bg-zinc-900">
+      <main className="relative min-h-[calc(100vh-4rem)] w-full bg-gray-50 dark:bg-zinc-900 my-10">
         <div className="max-w-6xl p-6 md:p-12 mx-auto space-y-10">
           <div className="flex items-center justify-end gap-2 w-full mb-4">
             <Button
@@ -137,7 +137,6 @@ export default function Home() {
                 />
               </div>
 
-              {/* Top Users */}
               {withdrawStats.topUsers?.length > 0 && (
                 <div className="mt-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">

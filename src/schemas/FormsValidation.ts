@@ -121,6 +121,7 @@ const addNewSupplierFormSchema = z
     bonus: z.string().optional(),
     category: z.string().optional(),
     active: z.string().optional(),
+    isPremium: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -131,6 +132,7 @@ export const updateSupplierFormSchema = z.object({
   bonus: z.string().optional(),
   category: z.string().optional(),
   active: z.string().optional(),
+  isPremium: z.string().optional(),
   password: z.string().optional(),
 });
 
@@ -193,11 +195,15 @@ const withdrawlUpdate = z
     path: ["remarks"],
   });
 
-const insertEmails = z.object({
+const insertEmailsSchema = z.object({
   userUuid: z.string().nonempty({ message: "Please select a supplier" }),
   emails: z.string().nonempty({ message: "Please enter at least one email" }),
   status: z.string().nonempty({ message: "Select a status" }),
   remarks: z.string().optional(),
+});
+
+const deleteOnlySchema = z.object({
+  emails: z.string().nonempty("Please enter at least one email"),
 });
 
 const addFaq = z.object({
@@ -236,10 +242,11 @@ export {
   bulkEmailUpdate,
   filterEmailSchema,
   withdrawlUpdate,
-  insertEmails,
+  insertEmailsSchema,
   filterSupplierSchema,
   addFaq,
   addMarquee,
   addInsSchema,
   addDomain,
+  deleteOnlySchema,
 };

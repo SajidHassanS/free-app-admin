@@ -71,6 +71,7 @@ const AddSupplierForm = ({
       bonus: "",
       category: "",
       active: "",
+      isPremium: "",
     },
   });
 
@@ -85,6 +86,7 @@ const AddSupplierForm = ({
         bonus: supplier.bonus?.toString() || "",
         category: supplier.category || "",
         active: supplier.active ? "true" : "false",
+        isPremium: supplier.isPremium ? "true" : "false",
       });
     }
   }, [supplier, reset]);
@@ -108,6 +110,7 @@ const AddSupplierForm = ({
           bonus: data.bonus,
           category: data.category,
           active: data.active,
+          isPremium: data.isPremium,
           ...(data.password !== supplier.password && {
             password: data.password,
           }),
@@ -226,6 +229,55 @@ const AddSupplierForm = ({
                                 className="text-black"
                                 placeholder={
                                   supplier?.active ? "true" : "Select Status"
+                                }
+                              />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectGroup>
+                                <SelectLabel>Select status</SelectLabel>
+                                {supplierActiveVal.map((status) => (
+                                  <SelectItem
+                                    key={status.value}
+                                    value={status.value}
+                                  >
+                                    {status.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </LabelInputContainer>
+
+                <LabelInputContainer className="mb-1">
+                  <Label htmlFor="isPremium" className="dark:text-farmacieGrey">
+                    Premium
+                  </Label>
+                  <FormField
+                    control={form.control}
+                    name="isPremium"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value: string) => {
+                              field.onChange(value);
+                            }}
+                            disabled={isViewMode}
+                          >
+                            <SelectTrigger
+                              className={cn(
+                                "p-3 py-5 rounded-md border border-estateLightGray focus:outline-none focus:ring-1 focus:ring-primary disabled:bg-primary/20"
+                              )}
+                            >
+                              <SelectValue
+                                className="text-black"
+                                placeholder={
+                                  supplier?.isPremium ? "true" : "Mark Premium"
                                 }
                               />
                             </SelectTrigger>

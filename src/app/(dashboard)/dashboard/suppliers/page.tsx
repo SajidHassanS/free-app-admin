@@ -188,6 +188,22 @@ const Suppliers = () => {
         ),
       },
       {
+        Header: "Premium",
+        accessor: "isPremium",
+        Cell: ({ row }: any) => (
+          <Badge
+            variant={row.original.isPremium ? "success" : "destructive"}
+            className={
+              row.original.isPremium
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }
+          >
+            {row.original.isPremium ? "True" : "False"}
+          </Badge>
+        ),
+      },
+      {
         Header: "",
         accessor: "actions",
         disableFilter: true,

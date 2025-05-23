@@ -319,7 +319,7 @@ const Emails = () => {
             <CardContent className="p-0 px-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleFilterSubmit)}>
-                  <div className="lg:grid grid-cols-3 xl:grid-cols-6 gap-4">
+                  <div className="lg:grid grid-cols-3 xl:grid-cols-6 gap-4 space-y-2 lg:space-y-0">
                     {/* Status */}
                     <LabelInputContainer>
                       <FormField

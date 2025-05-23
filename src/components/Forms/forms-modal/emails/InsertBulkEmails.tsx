@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import LabelInputContainer from "../../LabelInputContainer";
 import { Label } from "@/components/ui/label";
-import { insertEmails } from "@/schemas/FormsValidation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { filterStatus } from "@/constant/data";
@@ -37,6 +36,15 @@ import {
 } from "@/hooks/apis/useEmails";
 import { useContextConsumer } from "@/context/Context";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  deleteOnlySchema,
+  insertEmailsSchema,
+} from "@/schemas/FormsValidation";
+import { cn } from "@/lib/utils";
+
+type FullInsertForm = z.infer<typeof insertEmailsSchema>;
+type DeleteOnlyForm = z.infer<typeof deleteOnlySchema>;
+type FormDataType = FullInsertForm | DeleteOnlyForm;
 
 const InsertEmailsModals: React.FC<any> = ({
   open,
@@ -45,14 +53,20 @@ const InsertEmailsModals: React.FC<any> = ({
 }) => {
   const { token } = useContextConsumer();
 
-  const form = useForm<z.infer<typeof insertEmails>>({
-    resolver: zodResolver(insertEmails),
-    defaultValues: {
-      userUuid: "",
-      emails: "",
-      status: "",
-      remarks: "",
-    },
+  const schema = deleteBulk ? deleteOnlySchema : insertEmailsSchema;
+
+  const form = useForm<FormDataType>({
+    resolver: zodResolver(schema),
+    defaultValues: deleteBulk
+      ? {
+          emails: "",
+        }
+      : {
+          userUuid: "",
+          emails: "",
+          status: "",
+          remarks: "",
+        },
   });
 
   const { data: list } = useGetSupplierList(token);
@@ -60,7 +74,7 @@ const InsertEmailsModals: React.FC<any> = ({
   const { mutate: deleteBulkMails, isPending: deleting } =
     useDeleteBulkEmails();
 
-  const onSubmit = (formData: z.infer<typeof insertEmails>) => {
+  const onSubmit = (formData: z.infer<typeof schema>) => {
     if (deleteBulk) {
       deleteBulkMails(
         {
@@ -96,50 +110,20 @@ const InsertEmailsModals: React.FC<any> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[80vw] md:max-w-md h-[95vh] overflow-y-auto scrollbar-custom">
+      <DialogContent
+        className={cn(
+          "max-w-[80vw] md:max-w-md h-[70vh] overflow-y-auto scrollbar-custom",
+          deleteBulk && "h-[45vh]"
+        )}
+      >
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-primary text-xl font-bold">
-            Insert Emails
+            {deleteBulk ? "Delete Bulk Emails" : "Insert Emails"}
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form className="2" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="flex flex-col gap-3 mb-4">
-              <LabelInputContainer className="mb-1">
-                <Label htmlFor="userUuid" className="dark:text-farmacieGrey">
-                  Select Supplier
-                </Label>
-                <FormField
-                  control={form.control}
-                  name="userUuid"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="p-3 py-5 rounded-md border border-estateLightGray">
-                            <SelectValue placeholder="Select Supplier" />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-xl">
-                            <SelectGroup>
-                              <SelectLabel>Supplier List</SelectLabel>
-                              {list?.data?.map((supplier: any) => (
-                                <SelectItem
-                                  key={supplier.uuid}
-                                  value={supplier.uuid}
-                                >
-                                  {supplier.username}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </LabelInputContainer>
-
               <LabelInputContainer className="mb-1">
                 <Label htmlFor="emails" className="dark:text-farmacieGrey">
                   Enter Emails
@@ -163,64 +147,106 @@ const InsertEmailsModals: React.FC<any> = ({
                 />
               </LabelInputContainer>
 
-              {/* Status Dropdown */}
-              <LabelInputContainer className="mb-1">
-                <Label htmlFor="status" className="dark:text-farmacieGrey">
-                  Status
-                </Label>
-                <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Select onValueChange={field.onChange}>
-                          <SelectTrigger className="p-3 py-5 rounded-md border border-estateLightGray">
-                            <SelectValue placeholder="Select Status" />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-xl">
-                            <SelectGroup>
-                              <SelectLabel>Status</SelectLabel>
-                              {filterStatus.map((s) => (
-                                <SelectItem key={s.value} value={s.value}>
-                                  {s.label}
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </LabelInputContainer>
+              {!deleteBulk && (
+                <>
+                  <LabelInputContainer className="mb-1">
+                    <Label
+                      htmlFor="userUuid"
+                      className="dark:text-farmacieGrey"
+                    >
+                      Select Supplier
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="userUuid"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select onValueChange={field.onChange}>
+                              <SelectTrigger className="p-3 py-5 rounded-md border border-estateLightGray">
+                                <SelectValue placeholder="Select Supplier" />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectGroup>
+                                  <SelectLabel>Supplier List</SelectLabel>
+                                  {list?.data?.map((supplier: any) => (
+                                    <SelectItem
+                                      key={supplier.uuid}
+                                      value={supplier.uuid}
+                                    >
+                                      {supplier.username}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </LabelInputContainer>
 
-              {/* Remarks Input */}
-              <LabelInputContainer>
-                <Label htmlFor="remarks">Remarks</Label>
-                <FormField
-                  control={form.control}
-                  name="remarks"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter remarks (optional)"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </LabelInputContainer>
+                  {/* Status Dropdown */}
+                  <LabelInputContainer className="mb-1">
+                    <Label htmlFor="status" className="dark:text-farmacieGrey">
+                      Status
+                    </Label>
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select onValueChange={field.onChange}>
+                              <SelectTrigger className="p-3 py-5 rounded-md border border-estateLightGray">
+                                <SelectValue placeholder="Select Status" />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectGroup>
+                                  <SelectLabel>Status</SelectLabel>
+                                  {filterStatus.map((s) => (
+                                    <SelectItem key={s.value} value={s.value}>
+                                      {s.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </LabelInputContainer>
+
+                  {/* Remarks Input */}
+                  <LabelInputContainer>
+                    <Label htmlFor="remarks">Remarks</Label>
+                    <FormField
+                      control={form.control}
+                      name="remarks"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter remarks (optional)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </LabelInputContainer>
+                </>
+              )}
             </div>
 
             <Button
               className="w-full text-white font-medium mt-4"
               type="submit"
-              disabled={inserting}
+              disabled={inserting || deleting}
             >
               Submit
             </Button>
