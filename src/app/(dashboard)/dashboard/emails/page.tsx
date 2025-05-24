@@ -209,17 +209,22 @@ const Emails = () => {
         Cell: ({ row }: any) => row.original.user?.username || "-",
       },
       {
-        Header: "Email",
-        accessor: "email",
-      },
-      {
         Header: "Name",
         accessor: "name",
         Cell: ({ value }: any) => value || "-",
       },
       {
+        Header: "Email",
+        accessor: "email",
+      },
+      {
         Header: "Password",
         accessor: "password",
+      },
+      {
+        Header: "Recovery Email",
+        accessor: "recoveryEmail",
+        Cell: ({ value }: any) => value || "-",
       },
       {
         Header: "Status",
@@ -257,14 +262,7 @@ const Emails = () => {
         accessor: "remarks",
       },
       {
-        Header: "Created At",
-        accessor: "createdAt",
-        disableFilter: true,
-        Cell: ({ row }: any) =>
-          format(new Date(row.original.createdAt), "dd MMM yyyy, hh:mm a"),
-      },
-      {
-        Header: "Updated At",
+        Header: "Uploaded At",
         accessor: "updatedAt",
         disableFilter: true,
         Cell: ({ row }: any) =>
@@ -277,7 +275,7 @@ const Emails = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl">
+      <div className="space-y-4 p-2 lg:p-10 rounded-2xl">
         <div className="flex flex-wrap gap-3 items-center justify-between">
           <h2 className="text-2xl font-bold text-primary">Available Emails</h2>
           <div className="flex gap-2">

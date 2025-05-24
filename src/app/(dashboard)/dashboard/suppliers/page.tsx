@@ -236,7 +236,7 @@ const Suppliers = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl">
+      <div className="space-y-4 p-2 lg:p-10 rounded-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-primary">All Suppliers</h2>
           <Button
@@ -261,7 +261,7 @@ const Suppliers = () => {
             <CardContent className="p-0 px-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(handleFilterSubmit)}>
-                  <div className="lg:grid grid-cols-2 xl:grid-cols-4 gap-4">
+                  <div className="lg:grid grid-cols-2 xl:grid-cols-4 gap-4 space-y-4 lg:space-y-0">
                     <LabelInputContainer>
                       <FormField
                         control={form.control}

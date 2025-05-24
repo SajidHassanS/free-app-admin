@@ -67,8 +67,8 @@ const Passwords = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 p-2 lg:p-10 rounded-2xl">
+        <div className="lg:flex items-center justify-between">
           <h2 className="text-xl font-bold">All Passwords</h2>
           <div className="flex gap-2">
             <Button

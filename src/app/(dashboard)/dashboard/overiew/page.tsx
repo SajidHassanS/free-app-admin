@@ -36,8 +36,8 @@ export default function Home() {
     <>
       <Toaster position="top-center" reverseOrder={false} />
       <main className="relative min-h-[calc(100vh-4rem)] w-full bg-gray-50 dark:bg-zinc-900 my-10">
-        <div className="max-w-6xl p-6 md:p-12 mx-auto space-y-10">
-          <div className="flex items-center justify-end gap-2 w-full mb-4">
+        <div className="max-w-6xl p-2 lg:p-12 mx-auto space-y-10">
+          <div className="lg:flex items-center justify-end gap-2 w-full mb-4 space-y-2 lg:space-y-0">
             <Button
               size="sm"
               className="text-xs flex items-center gap-2 shadow-sm"

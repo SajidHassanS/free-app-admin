@@ -256,8 +256,8 @@ const Withdrawals = () => {
   return (
     <>
       <Toaster />
-      <div className="space-y-4 p-10 rounded-2xl max-w-6xl mx-auto">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 p-2 lg:p-10 rounded-2xl max-w-6xl mx-auto">
+        <div className="lg:flex items-center justify-between">
           <h2 className="text-2xl font-bold text-primary mb-4">Withdrawals</h2>
           <Button className="text-xs" size="sm" onClick={handleShowBonus}>
             Show Bonus Withdrawals
